@@ -1,3 +1,5 @@
+console.log "app node file", process.cwd()
+
 express = require 'express'
 app = express()
 
@@ -12,3 +14,6 @@ exports.startServer = (port, path, callback) ->
 
 	console.log 'Listening on port:' + port
 
+isHeroku = process.env.IS_HEROKU
+if isHeroku
+  exports.startServer()
