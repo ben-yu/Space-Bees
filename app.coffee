@@ -17,4 +17,4 @@ exports.startServer = (port, path, callback) ->
 
 isHeroku = process.env.IS_HEROKU
 if isHeroku
-  exports.startServer()
+	exports.startServer()
