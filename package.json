@@ -14,7 +14,7 @@
     "scripts": {
         "test": "cake build:test",
         "start": "brunch watch --server",
-        "postinstall": "brunch build -c config-release.coffee --optimize && coffee -c app.coffee"
+        "postinstall": "brunch build -c config-release.coffee && coffee -c app.coffee"
     },
     "dependencies": {
         "javascript-brunch": ">= 1.0 < 1.7",
