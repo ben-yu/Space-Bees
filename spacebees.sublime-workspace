@@ -1,0 +1,1073 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"miss",
+				"missiles"
+			],
+			[
+				"get",
+				"getObject"
+			],
+			[
+				"on",
+				"onMouseUp"
+			],
+			[
+				"tar",
+				"targetObject"
+			],
+			[
+				"missi",
+				"missile"
+			],
+			[
+				"mis",
+				"missiles"
+			],
+			[
+				"y",
+				"y"
+			],
+			[
+				"x",
+				"x"
+			],
+			[
+				"pi",
+				"pitchDown"
+			],
+			[
+				"move",
+				"moveState"
+			],
+			[
+				"z",
+				"z"
+			],
+			[
+				"h",
+				"halfHeight"
+			],
+			[
+				"hal",
+				"halfWidth"
+			],
+			[
+				"update",
+				"updateMovementVector"
+			],
+			[
+				"max",
+				"maxNormalSpeed"
+			],
+			[
+				"Cam",
+				"ChaseCamera"
+			],
+			[
+				"sk",
+				"skyCubes"
+			],
+			[
+				"in",
+				"interstellar"
+			],
+			[
+				"conne",
+				"connection"
+			],
+			[
+				"Ga",
+				"GameView"
+			],
+			[
+				"nav",
+				"navbar"
+			],
+			[
+				"not",
+				"notifs"
+			],
+			[
+				"mess",
+				"message_id"
+			],
+			[
+				"no",
+				"notifs"
+			],
+			[
+				"req",
+				"request"
+			],
+			[
+				"me",
+				"message_id"
+			],
+			[
+				"user",
+				"user_id"
+			],
+			[
+				"from",
+				"from_id"
+			],
+			[
+				"message",
+				"message"
+			],
+			[
+				"resp",
+				"response"
+			],
+			[
+				"firs",
+				"firstObject"
+			],
+			[
+				"account",
+				"account_id"
+			],
+			[
+				"pus",
+				"pushObject"
+			],
+			[
+				"fir",
+				"firstObject"
+			],
+			[
+				"IN",
+				"INSERT"
+			],
+			[
+				"U",
+				"UPDATE"
+			],
+			[
+				"thread",
+				"thread_id"
+			],
+			[
+				"mes",
+				"messages"
+			],
+			[
+				"result",
+				"result"
+			],
+			[
+				"page",
+				"pagenum"
+			],
+			[
+				"messag",
+				"message_id"
+			],
+			[
+				"con",
+				"contacts"
+			],
+			[
+				"id",
+				"id"
+			],
+			[
+				"pass",
+				"password"
+			],
+			[
+				"res",
+				"response"
+			],
+			[
+				"num",
+				"numberOfTweets"
+			],
+			[
+				"nu",
+				"numberOfTweets"
+			],
+			[
+				"next",
+				"next_token"
+			],
+			[
+				"token",
+				"tokens"
+			],
+			[
+				"req_",
+				"req_secret"
+			],
+			[
+				"o",
+				"oauth_token_secret"
+			],
+			[
+				"oauth",
+				"oauth_token"
+			],
+			[
+				"callback",
+				"callback_url"
+			],
+			[
+				"D",
+				"DATABASE_URL"
+			],
+			[
+				"create",
+				"createTempDB"
+			],
+			[
+				"ou",
+				"output_file"
+			],
+			[
+				"n",
+				"n"
+			],
+			[
+				"repl",
+				"replace_html_chars"
+			],
+			[
+				"se",
+				"split_tweet_to_sentences"
+			],
+			[
+				"str",
+				"strip_urls"
+			],
+			[
+				"strip",
+				"strip_html"
+			],
+			[
+				"data",
+				"data_points"
+			],
+			[
+				"nro",
+				"nrowStart"
+			],
+			[
+				"ba",
+				"barrier2"
+			],
+			[
+				"if",
+				"ifdef"
+			],
+			[
+				"threa",
+				"thread_num"
+			],
+			[
+				"thre",
+				"thread_num"
+			],
+			[
+				"ma",
+				"max_gens"
+			],
+			[
+				"nrows",
+				"nrows"
+			],
+			[
+				"i",
+				"i"
+			],
+			[
+				"__",
+				"__i"
+			],
+			[
+				"k",
+				"k"
+			],
+			[
+				"nc",
+				"ncolsStart"
+			],
+			[
+				"top",
+				"topLeftLeg"
+			],
+			[
+				"Uni",
+				"UnitCylinder"
+			],
+			[
+				"model",
+				"modelToWorld"
+			],
+			[
+				"int",
+				"intersection"
+			],
+			[
+				"ray",
+				"rayOrigin"
+			],
+			[
+				"squa",
+				"squareNormal"
+			],
+			[
+				"sq",
+				"squareNormal"
+			],
+			[
+				"ligh",
+				"lightPos"
+			],
+			[
+				"shadow",
+				"shadowRay"
+			],
+			[
+				"l",
+				"l"
+			],
+			[
+				"thr",
+				"thread_num"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "app/models/game.coffee",
+			"settings":
+			{
+				"buffer_size": 8659,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app/models/missile.coffee",
+			"settings":
+			{
+				"buffer_size": 1020,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app/models/ship.coffee",
+			"settings":
+			{
+				"buffer_size": 1334,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app/lib/model.coffee",
+			"settings":
+			{
+				"buffer_size": 52,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app/lib/collection.coffee",
+			"settings":
+			{
+				"buffer_size": 126,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app.coffee",
+			"settings":
+			{
+				"buffer_size": 317,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app/initialize.coffee",
+			"settings":
+			{
+				"buffer_size": 412,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app/lib/lockedcontrols.coffee",
+			"settings":
+			{
+				"buffer_size": 4742,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app/lib/chasecamera.coffee",
+			"settings":
+			{
+				"buffer_size": 997,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 327.0,
+		"selected_items":
+		[
+			[
+				"pack",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"Install",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/benjaminyu/spacebees/spacebees/app/views/game.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/app/lib/chasecamera.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/app/lib/lockedcontrols.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/package.json",
+		"/Users/benjaminyu/spacebees/spacebees/app/assets/index.html",
+		"/Users/benjaminyu/spacebees/spacebees/config.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/app/models/game.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/app/models/map.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/app/models/ship.coffee",
+		"/Users/benjaminyu/HexGL/,",
+		"/Users/benjaminyu/spacebees/spacebees/app/initialize.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/app/models/lockedcontrols.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/public/index.html",
+		"/Users/benjaminyu/spacebees/spacebees/app/views/styles/_base.styl",
+		"/Users/benjaminyu/spacebees/spacebees/app/lib/LockedControls.coffee",
+		"/Users/benjaminyu/Documents/dropbox",
+		"/Users/benjaminyu/spacebees/spacebees/vendor/scripts/PointerLockControls.js",
+		"/Users/benjaminyu/spacebees/spacebees/README.md",
+		"/Users/benjaminyu/spacebees/spacebees/app/views/templates/game.hbs",
+		"/Users/benjaminyu/spacebees/spacebees/app/views/main.coffee",
+		"/Users/benjaminyu/wattpad_test/main.js",
+		"/Users/benjaminyu/Documents/plaintext.txt",
+		"/Users/benjaminyu/spacebees/space_bees/app/views/templates/game.hbs",
+		"/Users/benjaminyu/spacebees/space_bees/app/views/kindlecablejonsnow.txt",
+		"/Users/benjaminyu/spacebees/space_bees/app/lib/core.coffee",
+		"/Users/benjaminyu/spacebees/space_bees/app/lib/main.coffee",
+		"/Users/benjaminyu/spacebees/space_bees/app/views/templates/site.hbs",
+		"/Users/benjaminyu/spacebees/space_bees/app/views/home-page-view.coffee",
+		"/Users/benjaminyu/spacebees/space_bees/app/views/templates/home.hbs",
+		"/Users/benjaminyu/Documents/blog/templates/about.html",
+		"/Users/benjaminyu/spacebees/space_bees/app/views/styles/header.styl",
+		"/Users/benjaminyu/Documents/blog/static/js/game.js",
+		"/Users/benjaminyu/Documents/blog/static/js/core.coffee",
+		"/Users/benjaminyu/Documents/blog/templates/front.html",
+		"/Users/benjaminyu/Documents/blog/templates/permalink.html",
+		"/Users/benjaminyu/Documents/blog/static/js/ben.js",
+		"/Users/benjaminyu/Documents/blog/static/css/flat-ui.css",
+		"/Users/benjaminyu/three.js/examples/webgl_loader_collada.html",
+		"/Users/benjaminyu/Documents/blog/templates/game.html",
+		"/Users/benjaminyu/Documents/blog/app.yaml",
+		"/Users/benjaminyu/Documents/blog/templates/contact.html",
+		"/Users/benjaminyu/Documents/blog/templates/base.html",
+		"/Users/benjaminyu/Documents/blog/templates/post.html",
+		"/Users/benjaminyu/Documents/blog/templates/newpost.html",
+		"/Users/benjaminyu/Downloads/TeamApp-frontend/frontend/coffee/models.coffee",
+		"/Users/benjaminyu/Downloads/TeamApp-frontend/frontend/templates/inbox.handlebars",
+		"/Users/benjaminyu/Downloads/TeamApp-frontend/frontend/js/app.js",
+		"/Users/benjaminyu/Downloads/TeamApp-frontend/frontend/coffee/app.coffee",
+		"/Users/benjaminyu/Documents/TeamApp/TeamApp/frontend/coffee/app.coffee",
+		"/Users/benjaminyu/Documents/TeamApp/TeamApp/frontend/coffee/models.coffee",
+		"/Users/benjaminyu/Downloads/TeamApp-frontend 3/frontend/coffee/app.coffee",
+		"/Users/benjaminyu/TeamApp-frontend/frontend/coffee/models.coffee",
+		"/Users/benjaminyu/TeamApp/src/web.js",
+		"/Users/benjaminyu/TeamApp/lib/web.js",
+		"/Users/benjaminyu/TeamApp-frontend/frontend/coffee/app.coffee",
+		"/Users/benjaminyu/Documents/open -a :Applications:Google\\ Chrome\\ Canary.app:",
+		"/Users/benjaminyu/Documents/Sonence/Sonence/Resources/shader.fsh",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A2/code/Task5.txt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A2/code/Task3.txt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A2/Testing/Task5.f",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A2/Testing/Task5.e",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A2/code/toy.f",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A2/code/toy.e",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A2/code/data_e.txt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A2/Testing/hansard.36.2.senate.debates.2000-05-03.51.e",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A2/Testing/hansard.36.2.house.debates.059.e",
+		"/Volumes/cdf.utoronto.ca/csc401/a1/3.5.output.txt",
+		"/Volumes/cdf.utoronto.ca/csc401/a1/buildarff_bonus.py",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/potpourri.arff",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/generated_tweets/nytimes.twt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/generated_tweets/aplusk.twt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/cnncbc.arff",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/popvnews.arff",
+		"/Volumes/cdf.utoronto.ca/csc401/a1/buildarff.py",
+		"/Users/benjaminyu/CSC401-A1/src/twtt.py",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/generated_tweets/britneyspears.twt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/generated_tweets/CBCNews.twt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/tweets/shakira",
+		"/Volumes/cdf.utoronto.ca/csc401/a1/generated_tweets/aplusk.twt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/holdout.arff",
+		"/Users/benjaminyu/TeamApp/src/web.coffee",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/3.4.output.txt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/pop.arff",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/tweets/CBCNews",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/twtt.py",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/pn_abbrev.english",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/abbrev.english",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/tweets/BarackObama",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/generated_tweets/BarackObama.twt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/tweets/KimKardashian",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/generated_tweets/KimKardashian.twt",
+		"/Users/benjaminyu/TeamApp/src/web_2.js",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/multiperceptron.txt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/dectree_pop",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/buildarff.py",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/naive_pop.txt",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/svm_pop",
+		"/Users/benjaminyu/Documents/University/Capstone/hello_world_js/.env",
+		"/Users/benjaminyu/Documents/University/Capstone/hello_world_js/schema.js",
+		"/Users/benjaminyu/Documents/University/Capstone/hello_world_js/web.js",
+		"/Users/benjaminyu/Documents/University/Thesis/http:::quantifiedself.com:images:proteus%20raisin.",
+		"/Users/benjaminyu/Documents/University/Capstone/hello_world_js/package.json",
+		"/Users/benjaminyu/Documents/University/Capstone/hello_world_js/Procfile",
+		"/Users/benjaminyu/Documents/University/Capstone/hello_world/index.js",
+		"/Users/benjaminyu/Documents/University/Capstone/hello_world/window.html",
+		"/Users/benjaminyu/Documents/University/Capstone/hello_node.js",
+		"/Users/benjaminyu/Documents/University/CSC401-NatLang/assignments/A1/tweets/BarackObama.twt",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/assets/stylesheets/custom.css.scss",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/assets/javascripts/application.js",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/views/static_pages/home.html.erb",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/views/static_pages/help.html.erb",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/views/layouts/_header.html.erb",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/views/layouts/application.html.erb",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/views/layouts/_footer.html.erb",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/views/layouts/_shim.html.erb",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/controllers/data_points_controller.rb",
+		"/Users/benjaminyu/Sonence-Web/Sonence/config/routes.rb",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/helpers/application_helper.rb",
+		"/Users/benjaminyu/Sonence-Web/Sonence/Gemfile",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/assets/stylesheets/data_points.css.scss",
+		"/Users/benjaminyu/Sonence-Web/Sonence/app/models/data_point.rb",
+		"/Users/benjaminyu/Documents/Sonence/Podfile",
+		"/Users/benjaminyu/Sonence-Web/Sonence/db/schema.rb",
+		"/Users/benjaminyu/Sonence-Web/Sonence/config/database.yml",
+		"/Users/benjaminyu/.vimrc",
+		"/Users/benjaminyu/Documents/University/mp1.cpp",
+		"/Volumes/ug159.eecg.utoronto.ca 2/hw5/hw5src/life.h",
+		"/Volumes/ug159.eecg.utoronto.ca 2/hw5/hw5src/gol.c"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"console.log",
+			"fire",
+			"clone",
+			"self",
+			"renderer",
+			"this.",
+			"cv",
+			"this.",
+			"controls",
+			"rotationVector",
+			"this.",
+			"this",
+			"console.log",
+			"speed",
+			"moveVector",
+			"this.",
+			"ratio",
+			"this.",
+			"LockedControls",
+			"scope",
+			"yawObject",
+			"controls",
+			"tab",
+			"moveForward",
+			"blocker",
+			"===",
+			"\\|\\|",
+			"||",
+			"/private/var/folders",
+			"avi",
+			"flv",
+			"graph",
+			"navbar-fixed",
+			"render_text",
+			"_render_text",
+			"decode",
+			"tags",
+			"\" \\+",
+			"compliment",
+			"row",
+			"create",
+			"REST",
+			"from",
+			"threads",
+			"webhook",
+			"threads",
+			"user",
+			"thread",
+			"Texture",
+			"SELECT",
+			"INbox",
+			"Contact",
+			"post",
+			"pg",
+			"exec",
+			"messages",
+			"firstmidpoint",
+			"midpoints",
+			"nafc",
+			"gamma",
+			"alpha",
+			"client",
+			"throw",
+			"cd",
+			"numberOfTweets",
+			"\\|\\n",
+			"|",
+			"Future",
+			"count_future_tense",
+			"processTweet",
+			"line",
+			"\"",
+			"name",
+			"reg_mult_punct",
+			"dashes",
+			"abbrev",
+			"hashtag",
+			"reg_abbrev",
+			"first",
+			"print",
+			"resource_filenames",
+			"Conjuction",
+			"-",
+			"classname",
+			"my",
+			"we",
+			"avrg_sentence_len",
+			"Gadhafi",
+			"Gadafi",
+			"2/NNP",
+			"U.S.",
+			"somalia",
+			"2.2",
+			"print",
+			"U.S.",
+			"Elena",
+			"\" SOTU",
+			"SOTU",
+			"SOUT",
+			"SOTU",
+			"..",
+			"print",
+			"victory",
+			"abbrev",
+			"U.S.",
+			"dolls",
+			"www.",
+			"www",
+			"Last",
+			"www.",
+			"\"",
+			"!!!",
+			"...",
+			"\n",
+			"twt",
+			"classname",
+			"class",
+			"data",
+			"Toronto",
+			"Cleanup",
+			"Cleanup/",
+			"abbreviations",
+			"reg_ellipsis",
+			"separate_sentences",
+			"seperate_sentences",
+			"&",
+			"input_fpntr",
+			"999"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+			"@",
+			"is",
+			"or",
+			"sideNormal",
+			"planeNormal",
+			"tmpDist2",
+			"tmpDist1",
+			"sideDist",
+			"planeDist",
+			"-120",
+			"-60",
+			"Colour",
+			"colour",
+			"lambda",
+			"dir"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 2,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "app/models/game.coffee",
+					"settings":
+					{
+						"buffer_size": 8659,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								28,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "app/models/missile.coffee",
+					"settings":
+					{
+						"buffer_size": 1020,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								306,
+								306
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "app/models/ship.coffee",
+					"settings":
+					{
+						"buffer_size": 1334,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								26,
+								26
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "app/lib/model.coffee",
+					"settings":
+					{
+						"buffer_size": 52,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								52,
+								52
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "app/lib/collection.coffee",
+					"settings":
+					{
+						"buffer_size": 126,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								126,
+								126
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "app.coffee",
+					"settings":
+					{
+						"buffer_size": 317,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								317,
+								317
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "app/initialize.coffee",
+					"settings":
+					{
+						"buffer_size": 412,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								412,
+								412
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "app/lib/lockedcontrols.coffee",
+					"settings":
+					{
+						"buffer_size": 4742,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4400,
+								4400
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 232.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "app/lib/chasecamera.coffee",
+					"settings":
+					{
+						"buffer_size": 997,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								421,
+								421
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 64.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"",
+				"/Users/benjaminyu/TeamApp/src/web.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 199.0,
+	"status_bar_visible": true
+}
