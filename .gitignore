@@ -29,5 +29,9 @@ tmp/
 public/
 
 # Sublime
-.sublime-project
-.sublime-workspace
+*.sublime-project
+*.sublime-workspace
+
+# Server stuff
+app.js
+server/*.js
