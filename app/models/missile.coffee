@@ -2,6 +2,7 @@ module.exports = class MissileModel extends Backbone.Model
 
     initialize : =>
         @startTime = +new Date()
+        @socket = @get("socket")
         @startPos = @get("position") or new THREE.Vector3(0,0,0)
         @maxDist = @get("maxDist") or 50000
         @position = @startPos.clone()
@@ -24,9 +25,3 @@ module.exports = class MissileModel extends Backbone.Model
 
     sync : (method, model, options) =>
         
-        switch method
-            when "create"
-                console.log 'create'
-            when "read" then
-            when "update" then
-            when "delete" then

@@ -1,7 +1,6 @@
-Model = require 'lib/model'
-
-module.exports = class ShipModel extends Model
+module.exports = class ShipModel extends Backbone.Model
     initialize : =>
+        @socket = new io.connect('http://localhost')
         @set "position", @position = @get("position") or new THREE.Vector3()
         #console.log @get("position")
         @set "velocity", new THREE.Vector3(0, 0, 0)
@@ -25,8 +24,6 @@ module.exports = class ShipModel extends Model
         #self = this
         #loader = new THREE.JSONLoader()
         #loader.load 'models/missiles/hellfire.js',  ( geometry, materials ) =>
-
-
         merged = new THREE.Geometry()
 
         body = new THREE.Mesh(new THREE.CylinderGeometry(10,20,50), new THREE.MeshNormalMaterial())
@@ -42,3 +39,13 @@ module.exports = class ShipModel extends Model
     advancedFire : ->
     move : ->
     damage : ->
+
+    sync : (method, model, options) =>
+        #console.log method
+        #options.data ?= {}
+        @socket.emit method, model.toJSON(), options.data, (err, data) =>
+            console.log "SEND!"
+            if err then console.error "error in sync with #{method} #{@.name()} with server (#{err})" else options.success(data)
+
+    name: =>
+        if @collection and @collection.name then return @collection.name else throw new Error "Socket model has no name (#{@.collection})"

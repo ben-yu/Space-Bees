@@ -4,6 +4,7 @@ LockedControls = require 'lib/lockedcontrols'
 ChaseCamera = require 'lib/chasecamera'
 
 module.exports = class Game extends Backbone.Model
+    tickrate: 300
     defaults:
         width: 800
         length: 600
@@ -25,6 +26,8 @@ module.exports = class Game extends Backbone.Model
 
         @clock = new THREE.Clock()
         @objects = []
+
+        #@socket = new io.connect('http://localhost')
 
         blocker = document.getElementById 'blocker'
         instructions = document.getElementById 'instructions'
@@ -85,7 +88,7 @@ module.exports = class Game extends Backbone.Model
         @players = new Backbone.Collection()
         @ship = new Ship()
         @camera.position.z = 300
-        console.log @ship.mesh
+        #console.log @ship.mesh
 
         @controls = new LockedControls @ship.mesh
 
@@ -250,6 +253,8 @@ module.exports = class Game extends Backbone.Model
             @ship.position.copy(@controls.targetObject.position)
             forward = new THREE.Vector3(0,0,-1)
             @ship.rotationV.copy(forward.transformDirection(@controls.targetObject.matrix))
+
+            @ship.save()
 
 
             return

@@ -16,6 +16,7 @@
 .project
 .settings
 .tmproj
+.env
 nbproject
 Thumbs.db
 
@@ -26,3 +27,7 @@ node_modules/
 tmp/
 
 public/
+
+# Sublime
+.sublime-project
+.sublime-workspace

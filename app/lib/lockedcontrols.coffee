@@ -150,7 +150,7 @@ module.exports = class LockedControls
         @rotationVector.x = ( -@moveState.pitchDown + @moveState.pitchUp )
         @rotationVector.y = ( @moveState.yawRight  + -@moveState.yawLeft )
         @rotationVector.z = ( -@moveState.rollRight + @moveState.rollLeft )
-        console.log 'rotate:', [ @rotationVector.x, @rotationVector.y, @rotationVector.z ]
+        #console.log 'rotate:', [ @rotationVector.x, @rotationVector.y, @rotationVector.z ]
 
     getContainerDimensions: () =>
 
