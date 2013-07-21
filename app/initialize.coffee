@@ -40,7 +40,7 @@ $ ->
             interstellar : "textures/skybox/interstellar/%1.jpg"
         },
         geometries: {
-            'missile' : 'geometries/missiles/hellfire.js'
+            'missile' : 'models/missiles/hellfire.js'
             'ship' : 'models/spaceship_0.js'
         },
         analysers : {},
