@@ -11,6 +11,7 @@ exports.config =
                     'vendor/scripts/lodash.js'
                     'vendor/scripts/backbone.js'
                     'vendor/scripts/three.js'
+                    'vendor/scripts/howler.js'
                 ]
 
         stylesheets:

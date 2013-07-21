@@ -66,7 +66,13 @@ module.exports = class LockedControls
         switch ( event.button )
 
             when 0 then @fireMissile = false
-            when 2 then @fireMissile = false
+            when 2
+                @fireMissile = false
+                missle_sound = new Howl({
+                    urls: ['sounds/effects/missile_launch.wav'],
+                })
+                missle_sound.play()
+
 
     onMouseMove: (event) =>
 

@@ -193,7 +193,14 @@ module.exports = class Game extends Backbone.Model
             instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API'
 
         container.prepend(@renderer.domElement)
-        #@renderer.render(@scene, @camera)
+
+        bg_sound = new Howl({
+            urls: ['sounds/background/8_bit.mp3'],
+            loop: true
+        })
+
+        bg_sound.play()
+
         @gameloop()
 
         return
