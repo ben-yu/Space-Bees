@@ -8,7 +8,7 @@ module.exports = class MissileModel extends Backbone.Model
         @position = @startPos.clone()
         @velocity = @get("velocity")
         #console.log @velocity
-        @mesh = new THREE.Mesh(new THREE.SphereGeometry(2), new THREE.MeshNormalMaterial())
+        @mesh = new THREE.Mesh(SpaceBees.Loader.get('geometries','missile'), new THREE.MeshNormalMaterial())
         @mesh.position = @position
 
         return

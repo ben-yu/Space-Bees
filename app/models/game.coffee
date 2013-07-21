@@ -1,3 +1,5 @@
+#Ship = require 'models/ship'
+ActivePlayers = require 'models/activeplayers'
 Ship = require 'models/ship'
 Missile = require 'models/missile'
 LockedControls = require 'lib/lockedcontrols'
@@ -20,6 +22,8 @@ module.exports = class Game extends Backbone.Model
                         "textures/skybox/interstellar/pz.jpg","textures/skybox/interstellar/nz.jpg"]
 
     initialize: ->
+
+    start: =>
         container = $('#game')
 
         @lastFireMissile = +new Date()
@@ -27,7 +31,7 @@ module.exports = class Game extends Backbone.Model
         @clock = new THREE.Clock()
         @objects = []
 
-        #@socket = new io.connect('http://localhost')
+        window.socket = new io.connect('http://localhost')
 
         blocker = document.getElementById 'blocker'
         instructions = document.getElementById 'instructions'
@@ -47,12 +51,10 @@ module.exports = class Game extends Backbone.Model
         @camera = new THREE.PerspectiveCamera VIEW_ANGLE, ASPECT, NEAR, FAR
         @scene = new THREE.Scene
 
-        #@scene.fog = new THREE.Fog( 0xcce0ff, 500, 10000 )
-
         # Skybox
 
         skyshader = THREE.ShaderLib["cube"]
-        skyshader.uniforms[ "tCube" ].value  = THREE.ImageUtils.loadTextureCube(@skyCubes.interstellar)
+        skyshader.uniforms["tCube"].value  = THREE.ImageUtils.loadTextureCube(@skyCubes.interstellar)
 
         skymaterial = new THREE.ShaderMaterial({
             fragmentShader : skyshader.fragmentShader,
@@ -85,7 +87,8 @@ module.exports = class Game extends Backbone.Model
         @objects.push floor
 
         # Players
-        @players = new Backbone.Collection()
+        @players = new ActivePlayers()
+        @players.fetch()
         @ship = new Ship()
         @camera.position.z = 300
         #console.log @ship.mesh
@@ -130,7 +133,7 @@ module.exports = class Game extends Backbone.Model
 
             element = document.body
 
-            pointerlockchange =  ( event ) =>
+            pointerlockchange =  (event) =>
 
                 if document.pointerLockElement is element or document.mozPointerLockElement is element or document.webkitPointerLockElement is element
 
@@ -146,7 +149,7 @@ module.exports = class Game extends Backbone.Model
 
                     instructions.style.display = ''
 
-            pointerlockerror =  ( event ) =>
+            pointerlockerror =  (event) =>
                 instructions.style.display = ''
 
             # Hook pointer lock state change events
@@ -240,7 +243,7 @@ module.exports = class Game extends Backbone.Model
             
 
             # Collision
-            @ray.ray.origin.copy( @controls.getObject().position )
+            @ray.ray.origin.copy @controls.getObject().position
             @ray.ray.origin.y -= 10
 
             intersections = @ray.intersectObjects(@objects)
@@ -254,7 +257,12 @@ module.exports = class Game extends Backbone.Model
             forward = new THREE.Vector3(0,0,-1)
             @ship.rotationV.copy(forward.transformDirection(@controls.targetObject.matrix))
 
-            @ship.save()
+            @ship.save(null,{
+                success: (model, response) =>
+                    #console.log "success"
+                error: (model, response) =>
+                    #console.log "error"
+            })
 
 
             return

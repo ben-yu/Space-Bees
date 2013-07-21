@@ -13,16 +13,12 @@ exports.startServer = (port, path, callback) ->
         res.sendfile './public/index.html'
 
     server = app.listen p
+
     io = require('socket.io').listen server
 
     gs = new GameServer(io)
-    gs.run()
-
-    io.sockets.on 'connection', (socket) =>
-        socket.on 'create', (data) =>
-            console.log data
-
-
+    #gs.run()
+    
     console.log 'Listening on port: ' + p
 
 isHeroku = process.env.IS_HEROKU

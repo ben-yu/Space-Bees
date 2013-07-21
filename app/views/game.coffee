@@ -8,7 +8,7 @@ module.exports = class GameView extends Backbone.View
     template: require 'views/templates/game'
 
     initialize: ->
-        window.game = SpaceBees.Models.Game = new Game()
+        #window.game = SpaceBees.Models.Game = new Game()
         #@game.animate()
         return
 

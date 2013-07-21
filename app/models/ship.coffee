@@ -1,6 +1,8 @@
 module.exports = class ShipModel extends Backbone.Model
-    initialize : =>
-        @socket = new io.connect('http://localhost')
+    #connection: window.socket
+
+    initialize : () =>
+        @connection = window.socket
         @set "position", @position = @get("position") or new THREE.Vector3()
         #console.log @get("position")
         @set "velocity", new THREE.Vector3(0, 0, 0)
@@ -21,7 +23,6 @@ module.exports = class ShipModel extends Backbone.Model
 
     update : ->
     loadModel : =>
-        #self = this
         #loader = new THREE.JSONLoader()
         #loader.load 'models/missiles/hellfire.js',  ( geometry, materials ) =>
         merged = new THREE.Geometry()
@@ -32,7 +33,8 @@ module.exports = class ShipModel extends Backbone.Model
         wings.position.z = 20
         THREE.GeometryUtils.merge(merged, body)
         THREE.GeometryUtils.merge(merged, wings)
-        @mesh = new THREE.Mesh(merged, new THREE.MeshNormalMaterial())
+        @mesh = new THREE.Mesh(SpaceBees.Loader.get('geometries','ship'), new THREE.MeshNormalMaterial())
+        @mesh.scale.set(15.0,15.0,15.0)
 
     setControls : ->
     standardFire : ->
@@ -42,10 +44,16 @@ module.exports = class ShipModel extends Backbone.Model
 
     sync : (method, model, options) =>
         #console.log method
-        #options.data ?= {}
-        @socket.emit method, model.toJSON(), options.data, (err, data) =>
-            console.log "SEND!"
-            if err then console.error "error in sync with #{method} #{@.name()} with server (#{err})" else options.success(data)
+        options.data ?= {}
+        @connection.emit 'ship_' + method, model.toJSON(), options.data, (err, data) ->
+            if err
+                console.error "error in sync with #{method} #{@.name()} with server (#{err})"
+            else
+                options.success data
+
+        @connection.on 'ship_' + method, (data) ->
+            #console.log 'success!'
+            model.id = data.id
 
     name: =>
         if @collection and @collection.name then return @collection.name else throw new Error "Socket model has no name (#{@.collection})"

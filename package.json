@@ -14,7 +14,7 @@
     "scripts": {
         "test": "cake build:test",
         "start": "brunch watch --server",
-        "postinstall": "brunch build --optimize && coffee -c app.coffee"
+        "postinstall": "brunch build --optimize && coffee -c app.coffee  && coffee -c server"
     },
     "dependencies": {
         "javascript-brunch": ">= 1.0 < 1.7",
@@ -23,7 +23,7 @@
         "socket.io": "0.9.x",
         "brunch": "1.x",
         "coffee-script": "1.6.x",
-        "backbone": "1.0",
+        "redis-url": "0.1.0",
 
         "css-brunch": ">= 1.0 < 1.7",
         "stylus-brunch": ">= 1.0 < 1.7",
