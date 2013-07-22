@@ -11,6 +11,7 @@ module.exports = class LockedControls
     autoForward: false
     rollSpeed: 0.05
     mouseStatus: 0
+    fireStandard: false
     fireMissile: false
     moveState:
         up: 0
@@ -57,15 +58,18 @@ module.exports = class LockedControls
 
         switch ( event.button )
 
-            when 0 then @fireMissile = true
-            when 2 then @fireMissile = true
+            when 0
+                @fireStandard = true
+            when 2
+                @fireMissile = true
 
 
     onMouseUp: (event) =>
 
         switch ( event.button )
 
-            when 0 then @fireMissile = false
+            when 0
+                @fireStandard = false
             when 2
                 @fireMissile = false
                 missle_sound = new Howl({
