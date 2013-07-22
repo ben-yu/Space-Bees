@@ -44,12 +44,16 @@ module.exports = class Game extends Backbone.Model
         VIEW_ANGLE = 45
         ASPECT = WIDTH / HEIGHT
         NEAR = 0.1
-        FAR = 10000
-
-        @renderer = new THREE.WebGLRenderer
+        FAR = 100000
 
         @camera = new THREE.PerspectiveCamera VIEW_ANGLE, ASPECT, NEAR, FAR
         @scene = new THREE.Scene
+        @scene.fog = new THREE.Fog( 0xffffff, 3000, 10000 )
+        @scene.fog.color.setHSL( 0.51, 0.6, 0.6 )
+
+
+        @renderer = new THREE.WebGLRenderer { antialias: false }
+        @renderer.setClearColor( @scene.fog.color, 1 )
 
         # Skybox
 
@@ -104,7 +108,7 @@ module.exports = class Game extends Backbone.Model
         @missiles = new Backbone.Collection()
 
         # Lighting
-        ambient = 0x222222
+        ambient = 0x555555
         diffuse = 0xffffff
         specular = 0xffffff
         shininess = 42
@@ -121,7 +125,34 @@ module.exports = class Game extends Backbone.Model
         @ray.ray.direction.set(0,-1,0)
 
         @renderer.setSize WIDTH, HEIGHT
+
+        # POSTPROCESSING
         @renderer.autoClear = false
+
+        renderTargetParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat, stencilBuffer: false }
+        renderTarget = new THREE.WebGLRenderTarget WIDTH, HEIGHT, renderTargetParameters
+
+        effectSave = new THREE.SavePass( new THREE.WebGLRenderTarget( WIDTH, HEIGHT, renderTargetParameters ) )
+        effectBlend = new THREE.ShaderPass( THREE.BlendShader, "tDiffuse1" )
+
+        # Motion Blur
+
+        effectBlend.uniforms[ 'tDiffuse2' ].value = effectSave.renderTarget
+        effectBlend.uniforms[ 'mixRatio' ].value = 0.65
+
+        renderModel = new THREE.RenderPass( @scene, @camera )
+        #renderModel.clear = false
+
+        effectBlend.renderToScreen = true
+
+        @composer = new THREE.EffectComposer( @renderer, renderTarget )
+        @composer.addPass( renderModel )
+
+        @composer.addPass( effectBlend )
+        #@composer.addPass( effectSave )
+
+        effectSave.enabled = true
+        effectBlend.enabled = true
 
         # Pointer Lock - http://www.html5rocks.com/en/tutorials/pointerlock/intro/
 
@@ -218,12 +249,15 @@ module.exports = class Game extends Backbone.Model
         missile = new Missile({
             position:@ship.position.clone(),
             velocity:@ship.rotationV.clone().multiplyScalar(500)
-            })
+        })
+        m2 = new THREE.Matrix4()
+        m2.makeRotationY(-Math.PI/2)
+        m2.multiplyMatrices(m2,@controls.targetObject.matrix)
+        m2.multiplyScalar(0.2)
+        missile.mesh.applyMatrix(m2)
+        console.log @ship.rotationV
         @missiles.add(missile)
-        #console.log missile.mesh.position
         @scene.add missile.mesh
-        #console.log 'fire!'
-
 
     gameloop: =>
 
@@ -242,13 +276,15 @@ module.exports = class Game extends Backbone.Model
 
             @missiles.forEach (bullet) =>
                 bullet.update()
+                if (new THREE.Vector3().subVectors(bullet.startPos, bullet.position).length()> bullet.maxDist)
+                    @scene.remove(bullet.mesh)
+                    bullet.destroy()
 
             if @controls.fireMissile
                 if +new Date() - @lastFireMissile > 500
                     @lastFireMissile = +new Date()
                     @fire("missile")
             
-
             # Collision
             @ray.ray.origin.copy @controls.getObject().position
             @ray.ray.origin.y -= 10
@@ -276,7 +312,10 @@ module.exports = class Game extends Backbone.Model
 
         # call renderer
         render = =>
-            @renderer.render @scene, @camera
+            @renderer.setViewport(0, 0, window.innerWidth, window.innerHeight)
+            #@renderer.clear()
+            @renderer.initWebGLObjects( @scene )
+            @composer.render( 0.1 )
 
         animate()
         return

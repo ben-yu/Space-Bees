@@ -12,6 +12,14 @@ exports.config =
                     'vendor/scripts/backbone.js'
                     'vendor/scripts/three.js'
                     'vendor/scripts/howler.js'
+                    'vendor/scripts/EffectComposer.js'
+                    'vendor/scripts/BlendShader.js'
+                    'vendor/scripts/CopyShader.js'
+                    'vendor/scripts/MaskPass.js'
+                    'vendor/scripts/RenderPass.js'
+                    'vendor/scripts/SavePass.js'
+                    'vendor/scripts/ShaderPass.js'
+                    'vendor/scripts/Sparks.js'
                 ]
 
         stylesheets:

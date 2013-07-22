@@ -4,8 +4,8 @@
 ###
 
 module.exports = class LockedControls
-    maxNormalSpeed: 10.0
-    maxBoosterSpeed: 500.0
+    maxNormalSpeed: 200.0
+    maxBoosterSpeed: 1000.0
     normalAccel: 0.05
     boosterAccel: 0.07
     autoForward: false
