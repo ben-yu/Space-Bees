@@ -121,12 +121,12 @@ module.exports = class LockedControls
             when 40 then # down
 
             when 87 then @moveState.forward = 0 #w
-            when 65 
+            when 65
                 @moveState.left = 0 # a
                 if @prevKey is 65 and not @moveState.rollLeft
                     @moveState.rollLeft = 1
             when 83 then @moveState.back = 0 # s
-            when 68 
+            when 68
                 @moveState.right = 0 #d
                 if @prevKey is 68 and not @moveState.rollRight
                     @moveState.rollRight = 1

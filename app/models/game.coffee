@@ -23,8 +23,6 @@ module.exports = class Game extends Backbone.Model
 
         @materials = {}
 
-        window.socket = new io.connect('http://localhost')
-
         blocker = document.getElementById 'blocker'
         instructions = document.getElementById 'instructions'
 
