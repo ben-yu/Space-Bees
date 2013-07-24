@@ -1,10 +1,7 @@
 module.exports = class ShipModel extends Backbone.Model
-    #connection: window.socket
-
     initialize : () =>
         @connection = window.socket
         @set "position", @position = @get("position") or new THREE.Vector3()
-        #console.log @get("position")
         @set "velocity", new THREE.Vector3(0, 0, 0)
         @falling = true
         @startDate = +new Date()
@@ -23,8 +20,6 @@ module.exports = class ShipModel extends Backbone.Model
 
     update : ->
     loadModel : =>
-        #loader = new THREE.JSONLoader()
-        #loader.load 'models/missiles/hellfire.js',  ( geometry, materials ) =>
         merged = new THREE.Geometry()
 
         body = new THREE.Mesh(new THREE.CylinderGeometry(10,20,50), new THREE.MeshNormalMaterial())
@@ -35,6 +30,7 @@ module.exports = class ShipModel extends Backbone.Model
         THREE.GeometryUtils.merge(merged, wings)
         @mesh = new THREE.Mesh(SpaceBees.Loader.get('geometries','ship'), new THREE.MeshNormalMaterial())
         @mesh.scale.set(15.0,15.0,15.0)
+        @mesh.position.copy(@position)
 
     setControls : ->
     standardFire : ->
@@ -42,18 +38,22 @@ module.exports = class ShipModel extends Backbone.Model
     move : ->
     damage : ->
 
+    getState: () =>
+        return {'id':@id,'type':@type,'x':@position.x,'y':@position.y,'z':@position.z}
+
     sync : (method, model, options) =>
-        #console.log method
         options.data ?= {}
-        @connection.emit 'ship_' + method, model.toJSON(), options.data, (err, data) ->
+        @connection.emit 'ship_' + method, model.getState(), options.data, (err, data) ->
             if err
                 console.error "error in sync with #{method} #{@.name()} with server (#{err})"
             else
                 options.success data
 
         @connection.on 'ship_' + method, (data) ->
-            #console.log 'success!'
             model.id = data.id
+            model.position.x = data.x
+            model.position.y = data.y
+            model.position.z = data.z
 
     name: =>
         if @collection and @collection.name then return @collection.name else throw new Error "Socket model has no name (#{@.collection})"

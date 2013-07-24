@@ -10,10 +10,30 @@ module.exports = class GameServer
 
         @io.sockets.on 'connection', (socket) =>
             console.log 'new connection!'
-            @onPlayerConnect(new Player(socket,this))
 
             socket.on 'players_read', (data) =>
-                #socket.emit 'players_read', @players
+                socket.emit 'players_read', @players
+
+            #Player CRUD
+            socket.on 'ship_create', (data) =>
+                newPlayer = new Player(socket,this, data)
+                @onPlayerConnect(newPlayer)
+                socket.emit 'ship_create', newPlayer.getState()
+        
+            socket.on 'ship_read', (data) =>
+                socket.emit 'ship_read', @players[data.id]
+
+            socket.on 'ship_update', (data) =>
+                @updatePlayer(data)
+                socket.emit 'ship_update', @players[data.id]
+
+            socket.on 'ship_delete', (data) =>
+                @removePlayer(data.id)
+                socket.emit 'ship_delete', @players[data.id]
+
+            socket.on 'disconnect', (socket) =>
+                console.log 'disconnected!'
+                @removePlayer(socket.id)
 
     onPlayerConnect: (player) ->
         @addPlayer(player)
@@ -22,13 +42,14 @@ module.exports = class GameServer
         @entities[entity.id] = entity
     
     addPlayer: (player) =>
-        @players[player.id] = player
+        if player?
+            @players[player.id] = player.getState()
 
     updatePlayer: (player) =>
         @players[player.id] = player
 
-    removePlayer: (player) =>
-        delete @players[player.id]
+    removePlayer: (id) =>
+        delete @players[id]
 
     pushPlayers: (player) =>
         player.connection.emit 'players', @players

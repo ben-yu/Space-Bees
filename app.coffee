@@ -16,6 +16,8 @@ exports.startServer = (port, path, callback) ->
 
     io = require('socket.io').listen server
 
+    io.set('log level', 1)
+
     gs = new GameServer(io)
     #gs.run()
     

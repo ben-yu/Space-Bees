@@ -10,16 +10,6 @@ module.exports = class Game extends Backbone.Model
     defaults:
         width: 800
         length: 600
-    geometries:
-        'missile' : 'geometries/missiles/hellfire.js'
-
-    textures:
-        'missile' : 'textures/missiles/hellfire_skin.png'
-
-    skyCubes:
-        interstellar : ["textures/skybox/interstellar/px.jpg","textures/skybox/interstellar/nx.jpg",
-                        "textures/skybox/interstellar/py.jpg","textures/skybox/interstellar/ny.jpg",
-                        "textures/skybox/interstellar/pz.jpg","textures/skybox/interstellar/nz.jpg"]
 
     initialize: ->
 
@@ -30,6 +20,8 @@ module.exports = class Game extends Backbone.Model
 
         @clock = new THREE.Clock()
         @objects = []
+
+        @materials = {}
 
         window.socket = new io.connect('http://localhost')
 
@@ -58,7 +50,7 @@ module.exports = class Game extends Backbone.Model
         # Skybox
 
         skyshader = THREE.ShaderLib["cube"]
-        skyshader.uniforms["tCube"].value  = THREE.ImageUtils.loadTextureCube(@skyCubes.interstellar)
+        skyshader.uniforms["tCube"].value  = SpaceBees.Loader.get('texturesCube','interstellar')
 
         skymaterial = new THREE.ShaderMaterial({
             fragmentShader : skyshader.fragmentShader,
@@ -72,13 +64,14 @@ module.exports = class Game extends Backbone.Model
         @scene.add skybox
 
         # Terrain
+
         initColor = new THREE.Color( 0x497f13 )
         initTexture = THREE.ImageUtils.generateDataTexture( 1, 1, initColor )
 
         groundMaterial = new THREE.MeshPhongMaterial { color: 0xffffff, specular: 0x111111, map: initTexture }
 
-        groundTexture = THREE.ImageUtils.loadTexture "textures/terrain/chipmetal/texturemap.jpg", undefined, () ->
-            groundMaterial.map = groundTexture
+        groundTexture = SpaceBees.Loader.get('textures','chipmetal')
+        groundMaterial.map = groundTexture
         groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping
         groundTexture.repeat.set( 25, 25 )
         groundTexture.anisotropy = 16
@@ -90,12 +83,33 @@ module.exports = class Game extends Backbone.Model
         @scene.add floor
         @objects.push floor
 
+        @materials.scrapers1 = new THREE.MeshBasicMaterial({
+            map: SpaceBees.Loader.get("textures", "scrapers1.diffuse"),
+            ambient: 0xcccccc
+        })
+
+        @materials.scrapers2 = new THREE.MeshBasicMaterial({
+            map: SpaceBees.Loader.get("textures", "scrapers2.diffuse"),
+            ambient: 0xcccccc
+        })
+
+        for i in [0..2]
+            for j in [0..2]
+                if i+j%2 == 0
+                    building = new THREE.Mesh( SpaceBees.Loader.get('geometries','scrapers1'), @materials.scrapers1 )
+                else
+                    building = new THREE.Mesh( SpaceBees.Loader.get('geometries','scrapers2'), @materials.scrapers2 )
+                building.position.set( 5000*i - 5000, 250, 5000*j - 5000)
+                @scene.add building
+                @objects.push building
+
         # Players
-        @players = new ActivePlayers()
-        @players.fetch()
-        @ship = new Ship()
+
+        @ship = new Ship({id:window.socket.socket.sessionid})
         @camera.position.z = 300
-        #console.log @ship.mesh
+
+        @players = new ActivePlayers([],{parentScene:@scene, selfId:window.socket.socket.sessionid})
+        @players.fetch()
 
         @controls = new LockedControls @ship.mesh
 
@@ -230,7 +244,7 @@ module.exports = class Game extends Backbone.Model
             loop: true
         })
 
-        bg_sound.play()
+        #bg_sound.play()
 
         @gameloop()
 
@@ -273,6 +287,11 @@ module.exports = class Game extends Backbone.Model
             delta = @clock.getDelta()
             @chasecamera.update(delta)
             @controls.update(delta)
+
+            # Active Players
+            @players.fetch()
+
+            # Projectiles
 
             @missiles.forEach (bullet) =>
                 bullet.update()

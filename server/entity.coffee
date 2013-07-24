@@ -1,6 +1,6 @@
 module.exports = class Entity
 	constructor: (id, @type, @kind, @x, @y, @z) ->
-		@id = parseInt(id)
+		@id = id
 
 	setPosition: (x,y,z) =>
 		@x = x
@@ -8,4 +8,4 @@ module.exports = class Entity
 		@z = z
 
 	getState: () =>
-		return [parseInt(@id),@kind,@x,@y,@z]
+		return {'id':@id,'type':@type,'x':@x,'y':@y,'z':@z}

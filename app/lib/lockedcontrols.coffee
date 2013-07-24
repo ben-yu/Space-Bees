@@ -4,15 +4,18 @@
 ###
 
 module.exports = class LockedControls
-    maxNormalSpeed: 200.0
+    maxNormalSpeed: 500.0
     maxBoosterSpeed: 1000.0
     normalAccel: 0.05
     boosterAccel: 0.07
     autoForward: false
     rollSpeed: 0.05
+    barrelRollSpeed: 5.0
     mouseStatus: 0
     fireStandard: false
     fireMissile: false
+    prevKey: null
+    rollAngle: 0
     moveState:
         up: 0
         down: 0
@@ -92,20 +95,20 @@ module.exports = class LockedControls
 
         switch event.keyCode
 
-            when 37 then # left
-            when 38 then # up
-            when 39 then # right
-            when 40 then # down
-
             when 87 then @moveState.forward = 1 #w
-            when 65 then @moveState.left = 1  # a
+            when 65
+                @moveState.left = 1  # a
+
             when 83 then @moveState.back = 1  # s
-            when 68 then @moveState.right = 1  #d
+            when 68
+                @moveState.right = 1  #d
+
 
             when 32 then @speed = @maxBoosterSpeed # space
 
+        #@prevKey = event.keyCode
         @updateMovementVector()
-        #console.log @targetObject.position.z
+        #@updateRotationVector()
 
 
     onKeyUp: (event) =>
@@ -118,13 +121,22 @@ module.exports = class LockedControls
             when 40 then # down
 
             when 87 then @moveState.forward = 0 #w
-            when 65 then @moveState.left = 0 # a
+            when 65 
+                @moveState.left = 0 # a
+                if @prevKey is 65 and not @moveState.rollLeft
+                    @moveState.rollLeft = 1
             when 83 then @moveState.back = 0 # s
-            when 68 then @moveState.right = 0 #d
+            when 68 
+                @moveState.right = 0 #d
+                if @prevKey is 68 and not @moveState.rollRight
+                    @moveState.rollRight = 1
 
             when 32 then @speed = @maxNormalSpeed
-
+        
+        @prevKey = event.keyCode
         @updateMovementVector()
+        @updateRotationVector()
+
 
     getObject: () =>
         return @targetObject
@@ -135,12 +147,23 @@ module.exports = class LockedControls
 
         moveMult = delta * @speed
         rotMult = delta * @rollSpeed
+        barrelMult = delta * @barrelRollSpeed
+
+        if @moveState.rollLeft or @moveState.rollRight
+            @updateRotationVector()
+            @rollAngle += @rotationVector.z * barrelMult
+
+        if Math.abs(@rollAngle) >= Math.PI
+            @moveState.rollLeft = 0
+            @moveState.rollRight = 0
+            @rollAngle = 0
+            @updateRotationVector()
 
         @targetObject.translateX(@movement.x * moveMult)
         @targetObject.translateY(@movement.y * moveMult)
         @targetObject.translateZ(@movement.z * moveMult)
 
-        @tmpQuaternion.set(@rotationVector.x * rotMult, @rotationVector.y * rotMult, @rotationVector.z * rotMult, 1 ).normalize()
+        @tmpQuaternion.set(@rotationVector.x * rotMult, @rotationVector.y * rotMult, @rotationVector.z * barrelMult, 1 ).normalize()
         @targetObject.quaternion.multiply(@tmpQuaternion)
 
         # expose the rotation vector for convenience
@@ -160,7 +183,6 @@ module.exports = class LockedControls
         @rotationVector.x = ( -@moveState.pitchDown + @moveState.pitchUp )
         @rotationVector.y = ( @moveState.yawRight  + -@moveState.yawLeft )
         @rotationVector.z = ( -@moveState.rollRight + @moveState.rollLeft )
-        #console.log 'rotate:', [ @rotationVector.x, @rotationVector.y, @rotationVector.z ]
 
     getContainerDimensions: () =>
 
