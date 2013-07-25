@@ -1,6 +1,6 @@
 # Space Bees
 
-![image](http://imgur.com/lgEPhcg)
+![image](http://i.imgur.com/lgEPhcg.jpg)
 
 A Browser MMO using Three.js, Socket.io, and Node. 
 
