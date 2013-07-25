@@ -134,7 +134,12 @@ module.exports = class Game extends Backbone.Model
         @scene.add sun
 
         @ray = new THREE.Raycaster()
-        @ray.ray.direction.set(0,-1,0)
+        @intersectDirections = [new THREE.Vector3(0,-1,0),
+                                new THREE.Vector3(0,1,0),
+                                new THREE.Vector3(-1,0,0),
+                                new THREE.Vector3(1,0,0),
+                                new THREE.Vector3(0,0,-1),
+                                new THREE.Vector3(0,0,1)]
 
         @renderer.setSize WIDTH, HEIGHT
 
@@ -335,12 +340,18 @@ module.exports = class Game extends Backbone.Model
             @ray.ray.origin.copy @controls.getObject().position
             @ray.ray.origin.y -= 10
 
-            intersections = @ray.intersectObjects(@objects)
+            for dir in @intersectDirections
 
-            if intersections.length > 0
-                distance = intersections[0].distance
-                if distance > 0 and distance < 10
-                    @controls.collision(true)
+                @ray.ray.direction.copy(dir)
+
+                intersections = @ray.intersectObjects(@objects)
+
+                if intersections.length > 0
+                    for intersection in intersections
+                        distance = intersection.distance
+                        if distance > 0 and distance < 10
+                            @controls.collision(true)
+                            console.log 'collision!'
 
             @ship.position.copy(@controls.targetObject.position)
             forward = new THREE.Vector3(0,0,-1)

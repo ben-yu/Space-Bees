@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"dire",
+				"intersectDirections"
+			],
+			[
+				"eff",
+				"effectVignette"
+			],
+			[
+				"effectB",
+				"effectBloom"
+			],
+			[
+				"effe",
+				"effectFXAA"
+			],
+			[
 				"miss",
 				"missiles"
 			],
@@ -344,18 +360,10 @@
 	"buffers":
 	[
 		{
-			"file": "app/models/game.coffee",
-			"settings":
-			{
-				"buffer_size": 8659,
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "app/models/missile.coffee",
 			"settings":
 			{
-				"buffer_size": 1020,
+				"buffer_size": 1412,
 				"line_ending": "Unix"
 			}
 		},
@@ -363,31 +371,7 @@
 			"file": "app/models/ship.coffee",
 			"settings":
 			{
-				"buffer_size": 1334,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "app/lib/model.coffee",
-			"settings":
-			{
-				"buffer_size": 52,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "app/lib/collection.coffee",
-			"settings":
-			{
-				"buffer_size": 126,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "app.coffee",
-			"settings":
-			{
-				"buffer_size": 317,
+				"buffer_size": 2068,
 				"line_ending": "Unix"
 			}
 		},
@@ -395,7 +379,23 @@
 			"file": "app/initialize.coffee",
 			"settings":
 			{
-				"buffer_size": 412,
+				"buffer_size": 1872,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app/models/game.coffee",
+			"settings":
+			{
+				"buffer_size": 13029,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "config.coffee",
+			"settings":
+			{
+				"buffer_size": 2277,
 				"line_ending": "Unix"
 			}
 		},
@@ -403,15 +403,31 @@
 			"file": "app/lib/lockedcontrols.coffee",
 			"settings":
 			{
-				"buffer_size": 4742,
+				"buffer_size": 5671,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "app/lib/chasecamera.coffee",
+			"file": "app/lib/loader.coffee",
 			"settings":
 			{
-				"buffer_size": 997,
+				"buffer_size": 4644,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app/assets/index.html",
+			"settings":
+			{
+				"buffer_size": 1995,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app.coffee",
+			"settings":
+			{
+				"buffer_size": 596,
 				"line_ending": "Unix"
 			}
 		}
@@ -452,13 +468,16 @@
 	},
 	"file_history":
 	[
-		"/Users/benjaminyu/spacebees/spacebees/app/views/game.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/spacebees.sublime-project",
 		"/Users/benjaminyu/spacebees/spacebees/app/lib/chasecamera.coffee",
 		"/Users/benjaminyu/spacebees/spacebees/app/lib/lockedcontrols.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/app/lib/collection.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/app/lib/model.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/app/models/game.coffee",
+		"/Users/benjaminyu/spacebees/spacebees/app/views/game.coffee",
 		"/Users/benjaminyu/spacebees/spacebees/package.json",
 		"/Users/benjaminyu/spacebees/spacebees/app/assets/index.html",
 		"/Users/benjaminyu/spacebees/spacebees/config.coffee",
-		"/Users/benjaminyu/spacebees/spacebees/app/models/game.coffee",
 		"/Users/benjaminyu/spacebees/spacebees/app/models/map.coffee",
 		"/Users/benjaminyu/spacebees/spacebees/app/models/ship.coffee",
 		"/Users/benjaminyu/HexGL/,",
@@ -576,10 +595,7 @@
 		"/Users/benjaminyu/Documents/Sonence/Podfile",
 		"/Users/benjaminyu/Sonence-Web/Sonence/db/schema.rb",
 		"/Users/benjaminyu/Sonence-Web/Sonence/config/database.yml",
-		"/Users/benjaminyu/.vimrc",
-		"/Users/benjaminyu/Documents/University/mp1.cpp",
-		"/Volumes/ug159.eecg.utoronto.ca 2/hw5/hw5src/life.h",
-		"/Volumes/ug159.eecg.utoronto.ca 2/hw5/hw5src/gol.c"
+		"/Users/benjaminyu/.vimrc"
 	],
 	"find":
 	{
@@ -598,6 +614,9 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"@ray",
+			"console.log",
+			"Controls",
 			"console.log",
 			"fire",
 			"clone",
@@ -722,10 +741,7 @@
 			"abbreviations",
 			"reg_ellipsis",
 			"separate_sentences",
-			"seperate_sentences",
-			"&",
-			"input_fpntr",
-			"999"
+			"seperate_sentences"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -758,22 +774,22 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 3,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "app/models/game.coffee",
+					"file": "app/models/missile.coffee",
 					"settings":
 					{
-						"buffer_size": 8659,
+						"buffer_size": 1412,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								28,
+								0,
 								0
 							]
 						],
@@ -791,18 +807,18 @@
 				},
 				{
 					"buffer": 1,
-					"file": "app/models/missile.coffee",
+					"file": "app/models/ship.coffee",
 					"settings":
 					{
-						"buffer_size": 1020,
+						"buffer_size": 2068,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								306,
-								306
+								0,
+								0
 							]
 						],
 						"settings":
@@ -819,18 +835,18 @@
 				},
 				{
 					"buffer": 2,
-					"file": "app/models/ship.coffee",
+					"file": "app/initialize.coffee",
 					"settings":
 					{
-						"buffer_size": 1334,
+						"buffer_size": 1872,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								26,
-								26
+								1034,
+								1034
 							]
 						],
 						"settings":
@@ -840,56 +856,60 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 85.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 3,
-					"file": "app/lib/model.coffee",
+					"file": "app/models/game.coffee",
 					"settings":
 					{
-						"buffer_size": 52,
+						"buffer_size": 13029,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								52,
-								52
+								4620,
+								4620
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage"
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 4936.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 4,
-					"file": "app/lib/collection.coffee",
+					"file": "config.coffee",
 					"settings":
 					{
-						"buffer_size": 126,
+						"buffer_size": 2277,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								126,
-								126
+								1434,
+								1434
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage"
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -899,70 +919,18 @@
 				},
 				{
 					"buffer": 5,
-					"file": "app.coffee",
-					"settings":
-					{
-						"buffer_size": 317,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								317,
-								317
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "app/initialize.coffee",
-					"settings":
-					{
-						"buffer_size": 412,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								412,
-								412
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 7,
 					"file": "app/lib/lockedcontrols.coffee",
 					"settings":
 					{
-						"buffer_size": 4742,
+						"buffer_size": 5671,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4400,
-								4400
+								3648,
+								3648
 							]
 						],
 						"settings":
@@ -972,25 +940,87 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 232.0,
+						"translation.y": 1468.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 8,
-					"file": "app/lib/chasecamera.coffee",
+					"buffer": 6,
+					"file": "app/lib/loader.coffee",
 					"settings":
 					{
-						"buffer_size": 997,
+						"buffer_size": 4644,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								421,
-								421
+								646,
+								657
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "app/assets/index.html",
+					"settings":
+					{
+						"buffer_size": 1995,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1496,
+								1496
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 120.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 8,
+					"file": "app.coffee",
+					"settings":
+					{
+						"buffer_size": 596,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								437,
+								437
 							]
 						],
 						"settings":
@@ -1025,11 +1055,18 @@
 				0,
 				1,
 				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
 			]
 		],
 		"cols":
 		[
 			0.0,
+			0.497840352771,
 			1.0
 		],
 		"rows":
