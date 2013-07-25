@@ -209,7 +209,7 @@ module.exports = class Game extends Backbone.Model
                 instructions.style.display = 'none'
 
                 # Ask the browser to lock the pointer
-                element.requestPointerLock = element.requestPointerLock or element.mozRequestPointerLock or element.webkitRequestPointerLock;
+                element.requestPointerLock = element.requestPointerLock or element.mozRequestPointerLock or element.webkitRequestPointerLock
 
                 if ( /Firefox/i.test( navigator.userAgent ) )
 

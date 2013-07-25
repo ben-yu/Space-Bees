@@ -45,7 +45,7 @@ exports.config =
 
                 max_line_length:
                     value: 80
-                    level: "warn"
+                    level: "ignore"
 
     server:
         path: 'app.coffee'
