@@ -31,7 +31,7 @@ $ ->
         onError: (s) =>
             console.log "Error on " + s
         onProgress: (p,t,n) =>
-            console.log "Loaded " + t + ":" + n + " ( " + p.loaded + " / " + p.total + " )."
+            console.log "Loaded " + t + " : " + n + " ( " + p.loaded + " / " + p.total + " )."
     })
 
     SpaceBees.Loader.load({

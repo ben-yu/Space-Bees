@@ -29,6 +29,7 @@ module.exports = class LockedControls
         yawRight: 0
         rollLeft: 0
         rollRight: 0
+        boost: 0
 
     constructor: (ship,domElement) ->
 
@@ -104,7 +105,9 @@ module.exports = class LockedControls
                 @moveState.right = 1  #d
 
 
-            when 32 then @speed = @maxBoosterSpeed # space
+            when 32
+                @speed = @maxBoosterSpeed # space
+                @moveState.boost = true
 
         #@prevKey = event.keyCode
         @updateMovementVector()
@@ -131,7 +134,9 @@ module.exports = class LockedControls
                 if @prevKey is 68 and not @moveState.rollRight
                     @moveState.rollRight = 1
 
-            when 32 then @speed = @maxNormalSpeed
+            when 32
+                @speed = @maxNormalSpeed
+                @moveState.boost = false
         
         @prevKey = event.keyCode
         @updateMovementVector()

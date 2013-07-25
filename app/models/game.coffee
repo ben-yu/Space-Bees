@@ -144,27 +144,49 @@ module.exports = class Game extends Backbone.Model
         renderTargetParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat, stencilBuffer: false }
         renderTarget = new THREE.WebGLRenderTarget WIDTH, HEIGHT, renderTargetParameters
 
-        effectSave = new THREE.SavePass( new THREE.WebGLRenderTarget( WIDTH, HEIGHT, renderTargetParameters ) )
-        effectBlend = new THREE.ShaderPass( THREE.BlendShader, "tDiffuse1" )
+        @effectSave = new THREE.SavePass( new THREE.WebGLRenderTarget( WIDTH, HEIGHT, renderTargetParameters ) )
+        @effectBlend = new THREE.ShaderPass( THREE.BlendShader, "tDiffuse1" )
+        effectFXAA = new THREE.ShaderPass( THREE.FXAAShader )
+        effectVignette = new THREE.ShaderPass( THREE.VignetteShader )
+        effectBleach = new THREE.ShaderPass( THREE.BleachBypassShader )
+        effectBloom = new THREE.BloomPass( 0.25 )
+
+        effectFXAA.uniforms[ 'resolution' ].value.set( 1 / WIDTH, 1 / HEIGHT )
+
+        # tilt shift
+
+        hblur = new THREE.ShaderPass( THREE.HorizontalTiltShiftShader )
+        vblur = new THREE.ShaderPass( THREE.VerticalTiltShiftShader )
+
+        bluriness = 2
+
+        hblur.uniforms[ 'h' ].value = bluriness / WIDTH
+        vblur.uniforms[ 'v' ].value = bluriness / HEIGHT
+        hblur.uniforms[ 'r' ].value = vblur.uniforms[ 'r' ].value = 0.35
+        
+        effectVignette.uniforms[ "offset" ].value = 1.025
+        effectVignette.uniforms[ "darkness" ].value = 1.25
 
         # Motion Blur
 
-        effectBlend.uniforms[ 'tDiffuse2' ].value = effectSave.renderTarget
-        effectBlend.uniforms[ 'mixRatio' ].value = 0.65
+        @effectBlend.uniforms[ 'tDiffuse2' ].value = @effectSave.renderTarget
+        @effectBlend.uniforms[ 'mixRatio' ].value = 0.65
 
         renderModel = new THREE.RenderPass( @scene, @camera )
         #renderModel.clear = false
 
-        effectBlend.renderToScreen = true
+        effectVignette.renderToScreen = true
 
         @composer = new THREE.EffectComposer( @renderer, renderTarget )
         @composer.addPass( renderModel )
-
-        @composer.addPass( effectBlend )
-        #@composer.addPass( effectSave )
-
-        effectSave.enabled = true
-        effectBlend.enabled = true
+        @composer.addPass( effectFXAA )
+        @composer.addPass( @effectBlend )
+        @composer.addPass( @effectSave )
+        @composer.addPass( effectBloom )
+        @composer.addPass( effectBleach )
+        @composer.addPass( hblur )
+        @composer.addPass( vblur )
+        @composer.addPass( effectVignette )
 
         # Pointer Lock - http://www.html5rocks.com/en/tutorials/pointerlock/intro/
 
@@ -285,6 +307,13 @@ module.exports = class Game extends Backbone.Model
             delta = @clock.getDelta()
             @chasecamera.update(delta)
             @controls.update(delta)
+
+            if @controls.moveState.boost
+                @effectSave.enabled = true
+                @effectBlend.enabled = true
+            else
+                @effectSave.enabled = false
+                @effectBlend.enabled = false
 
             # Active Players
             @players.fetch()
