@@ -25,7 +25,7 @@ $ ->
     SpaceBees.Loader = new Loader({
         onLoad: () =>
             console.log "All Loaded"
-            window.socket = new io.connect('http://localhost')
+            window.socket = new io.connect(window.location.hostname)
             window.socket.on 'connect', () =>
                 SpaceBees.Models.Game.start()
         onError: (s) =>
