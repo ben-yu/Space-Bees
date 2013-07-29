@@ -16,6 +16,7 @@ module.exports = class LockedControls
     fireMissile: false
     prevKey: null
     rollAngle: 0
+    aimMode: 0
     moveState:
         up: 0
         down: 0
@@ -47,6 +48,12 @@ module.exports = class LockedControls
         @accel = new THREE.Vector3(0,0,0)
         @movement = new THREE.Vector3(0,0,0)
         @rotationVector = new THREE.Vector3(0,0,0)
+
+        @WIDTH =  window.innerWidth
+        @HEIGHT = window.innerHeight
+
+        @cursor_x = @WIDTH/2
+        @cursor_y = @HEIGHT/2
 
         @PI_2 = Math.PI / 2
 
@@ -89,12 +96,19 @@ module.exports = class LockedControls
             @moveState.yawLeft  = event.movementX or event.mozMovementX or event.webkitMovementX or 0
             @moveState.pitchDown = event.movementY or event.mozMovementY or event.webkitMovementY or 0
 
+            #console.log event.webkitMovementX + ":" + event.webkitMovementY
+
+            @cursor_x += @moveState.yawLeft if @cursor_x + @moveState.yawLeft > 0 && @cursor_x + @moveState.yawLeft < @WIDTH
+            @cursor_y += @moveState.pitchDown if @cursor_y + @moveState.pitchDown > 0 && @cursor_y + @moveState.pitchDown < @HEIGHT
+
             @updateRotationVector()
 
     onKeyDown: (event) =>
         #console.log "Pressed!" + event.keyCode
 
         switch event.keyCode
+
+            when 16 then @aimMode = 1
 
             when 87 then @moveState.forward = 1 #w
             when 65
@@ -117,6 +131,8 @@ module.exports = class LockedControls
     onKeyUp: (event) =>
 
         switch event.keyCode
+
+            when 16 then @aimMode = 0
 
             when 37 then # left
             when 38 then # up

@@ -7,9 +7,6 @@ ChaseCamera = require 'lib/chasecamera'
 
 module.exports = class Game extends Backbone.Model
     tickrate: 300
-    defaults:
-        width: 800
-        length: 600
 
     initialize: ->
 
@@ -31,16 +28,16 @@ module.exports = class Game extends Backbone.Model
         blocker = document.getElementById 'blocker'
         instructions = document.getElementById 'instructions'
 
-        @cursorOverlay = document.getElementById('cursorOverlay')
-        @cursorOverlay.width = WIDTH
-        @cursorOverlay.height = HEIGHT
-        @cursorOverlay.style.width = WIDTH
-        @cursorOverlay.style.height = HEIGHT
-        @cursorOverlay.style.top = 0
-        @cursorOverlay.style.left = 0
-        @cursorOverlay.style.position = 'absolute'
-        @context = @cursorOverlay.getContext('2d')
-        @cursorOverlay.style.display = 'none'
+        cursorOverlay = document.getElementById('cursorOverlay')
+        cursorOverlay.width = WIDTH
+        cursorOverlay.height = HEIGHT
+        cursorOverlay.style.width = WIDTH
+        cursorOverlay.style.height = HEIGHT
+        cursorOverlay.style.top = 0
+        cursorOverlay.style.left = 0
+        cursorOverlay.style.position = 'absolute'
+        @context = cursorOverlay.getContext('2d')
+        #cursorOverlay.style.display = 'none'
 
 
 
@@ -223,18 +220,15 @@ module.exports = class Game extends Backbone.Model
 
                     @controls.enabled = true
                     blocker.style.display = 'none'
-                    @cursorOverlay = document.getElementById('cursorOverlay')
-                    @cursorOverlay.style.display = 'true'
+                    cursorOverlay.style.display = true
             
                 else
 
                     @controls.enabled = false
-                    @cursorOverlay.style.display = 'none'
                     blocker.style.display = '-webkit-box'
                     blocker.style.display = '-moz-box'
                     blocker.style.display = 'box'
-                    @cursorOverlay = document.getElementById('cursorOverlay')
-                    @cursorOverlay.style.display = 'true'
+                    cursorOverlay.style.display = false
 
                     instructions.style.display = ''
 
@@ -253,12 +247,12 @@ module.exports = class Game extends Backbone.Model
             instructions.addEventListener( 'click',  (event) =>
 
                 instructions.style.display = 'none'
-                @cursorOverlay.style.display = 'true'
+                cursorOverlay.style.display = false
 
                 # Ask the browser to lock the pointer
                 element.requestPointerLock = element.requestPointerLock or element.mozRequestPointerLock or element.webkitRequestPointerLock
 
-                if ( /Firefox/i.test( navigator.userAgent ) )
+                if ( /Firefox/i.test(navigator.userAgent))
 
                     fullscreenchange =  (event) =>
 
@@ -390,7 +384,17 @@ module.exports = class Game extends Backbone.Model
             @renderer.clear()
             @renderer.initWebGLObjects( @scene )
             @composer.render( 0.1 )
-            @context.drawImage(SpaceBees.Loader.get('images','cursor'),window.innerWidth/2, window.innerHeight/2)
+            
+            # Render Cursor
+            @context.save()
+            @context.clearRect(0,0,window.innerWidth,window.innerHeight)
+            @context.translate(@controls.cursor_x, @controls.cursor_y)
+            if (@controls.aimMode)
+                @context.drawImage(SpaceBees.Loader.get('images','aim'),0,0)
+            else
+                @context.rotate(Math.atan2((@controls.cursor_y-window.innerHeight/2),(@controls.cursor_x-window.innerWidth/2)))
+                @context.drawImage(SpaceBees.Loader.get('images','cursor'),0,0)
+            @context.restore()
 
         animate()
         return
