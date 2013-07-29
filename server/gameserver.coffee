@@ -11,6 +11,8 @@ module.exports = class GameServer
         @io.sockets.on 'connection', (socket) =>
             console.log 'new connection!'
 
+            socket.join('room')
+
             socket.on 'players_read', (data) =>
                 socket.emit 'players_read', @players
 
@@ -25,15 +27,19 @@ module.exports = class GameServer
 
             socket.on 'ship_update', (data) =>
                 @updatePlayer(data)
+                @broadcastPlayerUpdate(data)
                 socket.emit 'ship_update', @players[data.id]
 
             socket.on 'ship_delete', (data) =>
                 @removePlayer(data.id)
                 socket.emit 'ship_delete', @players[data.id]
 
-            socket.on 'disconnect', (socket) =>
-                console.log 'disconnected!'
+            socket.on 'disconnect', () =>
+                @broadcastPlayerDelete(socket.id)
                 @removePlayer(socket.id)
+
+    run: () =>
+        # Update every interval of 
 
     onPlayerConnect: (player) ->
         @addPlayer(player)
@@ -50,6 +56,12 @@ module.exports = class GameServer
 
     removePlayer: (id) =>
         delete @players[id]
+
+    broadcastPlayerUpdate: (data) =>
+        @io.sockets.in('room').emit('players_update',  @players[data.id])
+
+    broadcastPlayerDelete: (id) =>
+        @io.sockets.in('room').emit('players_delete', id)
 
     pushPlayers: (player) =>
         player.connection.emit 'players', @players

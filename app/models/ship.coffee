@@ -9,6 +9,7 @@ module.exports = class ShipModel extends Backbone.Model
         @lastShot = 0
         @lastMove = +new Date()
         @life = @get("life") or 100
+        @shield = @get("shield") or 100
         @lastFireMissile = 0
         @rotationV = new THREE.Vector3(0, 1, 0)
         @level = 0
@@ -22,12 +23,6 @@ module.exports = class ShipModel extends Backbone.Model
     loadModel : =>
         merged = new THREE.Geometry()
 
-        body = new THREE.Mesh(new THREE.CylinderGeometry(10,20,50), new THREE.MeshNormalMaterial())
-        body.rotation.x = -Math.PI / 2
-        wings = new THREE.Mesh(new THREE.CubeGeometry(80,5,10), new THREE.MeshNormalMaterial())
-        wings.position.z = 20
-        THREE.GeometryUtils.merge(merged, body)
-        THREE.GeometryUtils.merge(merged, wings)
         @mesh = new THREE.Mesh(SpaceBees.Loader.get('geometries','ship'), new THREE.MeshNormalMaterial())
         @mesh.scale.set(15.0,15.0,15.0)
         @mesh.position.copy(@position)
@@ -39,7 +34,9 @@ module.exports = class ShipModel extends Backbone.Model
     damage : ->
 
     getState: () =>
-        return {'id':@id,'type':@type,'x':@position.x,'y':@position.y,'z':@position.z}
+        return {'id':@id,'type':@type,
+        'x':@position.x,'y':@position.y,'z':@position.z
+        'dir_x':@mesh.rotation.x,'dir_y':@mesh.rotation.y,'dir_z':@mesh.rotation.z}
 
     sync : (method, model, options) =>
         options.data ?= {}
@@ -54,6 +51,9 @@ module.exports = class ShipModel extends Backbone.Model
             model.position.x = data.x
             model.position.y = data.y
             model.position.z = data.z
+            model.mesh.rotation.x = data.dir_x
+            model.mesh.rotation.y = data.dir_y
+            model.mesh.rotation.z = data.dir_z
 
     name: =>
         if @collection and @collection.name then return @collection.name else throw new Error "Socket model has no name (#{@.collection})"

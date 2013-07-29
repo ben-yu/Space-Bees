@@ -23,12 +23,26 @@ module.exports = class Game extends Backbone.Model
 
         @materials = {}
 
-        blocker = document.getElementById 'blocker'
-        instructions = document.getElementById 'instructions'
-
         # set the scene size
         WIDTH = window.innerWidth
         HEIGHT = window.innerHeight
+
+
+        blocker = document.getElementById 'blocker'
+        instructions = document.getElementById 'instructions'
+
+        @cursorOverlay = document.getElementById('cursorOverlay')
+        @cursorOverlay.width = WIDTH
+        @cursorOverlay.height = HEIGHT
+        @cursorOverlay.style.width = WIDTH
+        @cursorOverlay.style.height = HEIGHT
+        @cursorOverlay.style.top = 0
+        @cursorOverlay.style.left = 0
+        @cursorOverlay.style.position = 'absolute'
+        @context = @cursorOverlay.getContext('2d')
+        @cursorOverlay.style.display = 'none'
+
+
 
         # set some camera attributes
         VIEW_ANGLE = 45
@@ -209,13 +223,18 @@ module.exports = class Game extends Backbone.Model
 
                     @controls.enabled = true
                     blocker.style.display = 'none'
+                    @cursorOverlay = document.getElementById('cursorOverlay')
+                    @cursorOverlay.style.display = 'true'
             
                 else
 
                     @controls.enabled = false
+                    @cursorOverlay.style.display = 'none'
                     blocker.style.display = '-webkit-box'
                     blocker.style.display = '-moz-box'
                     blocker.style.display = 'box'
+                    @cursorOverlay = document.getElementById('cursorOverlay')
+                    @cursorOverlay.style.display = 'true'
 
                     instructions.style.display = ''
 
@@ -231,16 +250,17 @@ module.exports = class Game extends Backbone.Model
             document.addEventListener 'mozpointerlockerror', pointerlockerror, false
             document.addEventListener 'webkitpointerlockerror', pointerlockerror, false
 
-            instructions.addEventListener( 'click',  (event) ->
+            instructions.addEventListener( 'click',  (event) =>
 
                 instructions.style.display = 'none'
+                @cursorOverlay.style.display = 'true'
 
                 # Ask the browser to lock the pointer
                 element.requestPointerLock = element.requestPointerLock or element.mozRequestPointerLock or element.webkitRequestPointerLock
 
                 if ( /Firefox/i.test( navigator.userAgent ) )
 
-                    fullscreenchange =  (event) ->
+                    fullscreenchange =  (event) =>
 
                         if (document.fullscreenElement is element or document.mozFullscreenElement is element or document.mozFullScreenElement is element)
                             document.removeEventListener( 'fullscreenchange', fullscreenchange )
@@ -269,8 +289,6 @@ module.exports = class Game extends Backbone.Model
             loop: true
         })
 
-        #bg_sound.play()
-
         @gameloop()
 
         return
@@ -294,7 +312,6 @@ module.exports = class Game extends Backbone.Model
         m2.multiplyMatrices(m2,@controls.targetObject.matrix)
         m2.multiplyScalar(0.2)
         missile.mesh.applyMatrix(m2)
-        console.log @ship.rotationV
         @missiles.add(missile)
         @scene.add missile.mesh
 
@@ -370,9 +387,10 @@ module.exports = class Game extends Backbone.Model
         # call renderer
         render = =>
             @renderer.setViewport(0, 0, window.innerWidth, window.innerHeight)
-            #@renderer.clear()
+            @renderer.clear()
             @renderer.initWebGLObjects( @scene )
             @composer.render( 0.1 )
+            @context.drawImage(SpaceBees.Loader.get('images','cursor'),window.innerWidth/2, window.innerHeight/2)
 
         animate()
         return

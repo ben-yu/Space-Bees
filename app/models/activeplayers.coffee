@@ -10,6 +10,12 @@ module.exports = class ActivePlayers extends Backbone.Collection
         @selfId = options.selfId
         console.log 'SELFID: ' + @selfId
 
+        @connection.on 'players_delete', (data) =>
+            console.log 'delete' + data
+            if @get(data)
+                @parentScene.remove(@get(data).mesh)
+                @remove(@get(data))
+
     getState: () =>
         state = []
         for m in @models
@@ -34,10 +40,25 @@ module.exports = class ActivePlayers extends Backbone.Collection
                         if @get(k)
                             ship = @get(k)
                             ship.mesh.position.copy(new THREE.Vector3(v.x,v.y,v.z))
+                            ship.mesh.rotation.copy(new THREE.Vector3(v.dir_x,v.dir_y,v.dir_z))
                         else if k isnt @selfId
                             pos = new THREE.Vector3(v.x,v.y,v.z)
                             ship = new Ship({id:v.id,position:pos})
                             @add(ship)
                             @parentScene.add(ship.mesh)
-                when 'update' then
-                when 'delete' then
+                when 'update'
+                    for k,v of data
+                        if @get(k)
+                            ship = @get(k)
+                            ship.mesh.position.copy(new THREE.Vector3(v.x,v.y,v.z))
+                            ship.mesh.rotation.copy(new THREE.Vector3(v.dir_x,v.dir_y,v.dir_z))
+                        else if k isnt @selfId
+                            pos = new THREE.Vector3(v.x,v.y,v.z)
+                            ship = new Ship({id:v.id,position:pos})
+                            @add(ship)
+                            @parentScene.add(ship.mesh)
+                when 'delete'
+                    console.log 'delete' + data
+                    if @get(data)
+                        @parentScene.remove(@get(data).mesh)
+                        @remove(@get(data))

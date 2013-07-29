@@ -56,5 +56,5 @@ $ ->
             'scrapers2' : 'models/scrapers2.js'
         },
         analysers : {},
-        images: {}
+        images: {'cursor' : 'images/cursor.png'}
     })

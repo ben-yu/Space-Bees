@@ -1,0 +1,160 @@
+.radar {
+  width: 150px;
+  height: 150px;
+  margin: 20px auto;
+  position: absolute;
+  top: 10px;
+  right: 50px;
+}
+
+.ring {
+  border-radius: 50%;
+  border: 2px solid #20C1DB;
+  box-shadow: 0px 0px 10px #0080b7, inset 0px 0px 10px #0080b7;
+  position: absolute;
+}
+
+.ring-1 {
+  width: 100%;
+  height: 100%;
+}
+
+.ring-2 {
+  width: 90%;
+  height: 90%;
+  top: 5%;
+  left: 5%;
+  opacity: 0.35;
+}
+
+.ring-3 {
+  width: 80%;
+  height: 80%;
+  top: 10%;
+  left: 10%;
+  opacity: 0.35;
+}
+
+.ring-4 {
+  width: 70%;
+  height: 70%;
+  top: 15%;
+  left: 15%;
+  opacity: 0.35;
+}
+
+.ring-5 {
+  width: 60%;
+  height: 60%;
+  top: 20%;
+  left: 20%;
+  opacity: 0.35;
+}
+
+.ring-6 {
+  width: 50%;
+  height: 50%;
+  top: 25%;
+  left: 25%;
+  opacity: 0.35;
+}
+
+.ring-7 {
+  width: 40%;
+  height: 40%;
+  top: 30%;
+  left: 30%;
+  opacity: 0.35;
+}
+
+.ring-8 {
+  width: 30%;
+  height: 30%;
+  top: 35%;
+  left: 35%;
+  opacity: 0.35;
+}
+
+.ring-9 {
+  width: 20%;
+  height: 20%;
+  top: 40%;
+  left: 40%;
+  opacity: 0.35;
+}
+
+.ring-10 {
+  width: 10%;
+  height: 10%;
+  top: 45%;
+  left: 45%;
+  opacity: 0.35;
+}
+
+@-moz-keyframes rotate{
+  0% {
+    -moz-transform: rotate(0deg);
+    -moz-transform-origin: 50% 50%;
+  }
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes rotate{
+  0% {
+    -webkit-transform: rotate(0deg);
+    -webkit-transform-origin: 50% 50%;
+  }
+  100% {
+    -webkit-transform:rotate(360deg);
+  }
+}
+
+.x {
+  width: 100%;
+  background-color: #20C1DB;
+  height: 1%;
+  position: absolute;
+  top: 50%;
+  box-shadow: 0px 0px 10px #0080b7;
+  opacity: 1.0;
+  z-index: 0;
+  -moz-animation: 6s rotate infinite linear; 
+  -webkit-animation: 6s rotate infinite linear;
+}
+
+@-moz-keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.target {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #20C1DB;
+  border-radius: 5px;
+  opacity: 0;
+  box-shadow: 0px 0px 20px 2px #fff;
+}
+
+.target-1 {
+  top: 20px;
+  left: 30px;
+  -moz-animation: 3s blink infinite 1s;
+  -webkit-animation: 3s blink infinite 1s;
+}
