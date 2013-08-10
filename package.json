@@ -25,6 +25,8 @@
         "brunch": "1.x",
         "coffee-script": "1.6.x",
         "redis-url": "0.1.0",
+        "passport-facebook": "0.1.5",
+        "mongoose":"3.6.16",
 
         "css-brunch": ">= 1.0 < 1.7",
         "stylus-brunch": ">= 1.0 < 1.7",
