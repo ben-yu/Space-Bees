@@ -6,3 +6,5 @@ module.exports = class Enemy extends Entity
 
     getState: () =>
         return {'id':@id,'type':@type,'x':@x,'y':@y,'z':@z}
+
+    move: () =>

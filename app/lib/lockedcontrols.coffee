@@ -4,12 +4,14 @@
 ###
 
 module.exports = class LockedControls
+    minNormalSpeed: 0.0
     maxNormalSpeed: 500.0
     maxBoosterSpeed: 1000.0
-    normalAccel: 0.05
-    boosterAccel: 0.07
-    autoForward: false
-    rollSpeed: 0.05
+    normalAccel: 100.0
+    boosterAccel: 200.0
+    boostTimer: 0
+    autoForward: true
+    rollSpeed: 0.5
     barrelRollSpeed: 5.0
     mouseStatus: 0
     fireStandard: false
@@ -43,9 +45,13 @@ module.exports = class LockedControls
 
         @tmpQuaternion = new THREE.Quaternion()
 
-        @speed = 0.1
+        @speed = @minNormalSpeed
+        @minSpeed = @minNormalSpeed
+        @maxSpeed = @maxNormalSpeed
+
+        @accel = @normalAccel
+
         @velocity = new THREE.Vector3(0,0,0)
-        @accel = new THREE.Vector3(0,0,0)
         @movement = new THREE.Vector3(0,0,0)
         @rotationVector = new THREE.Vector3(0,0,0)
 
@@ -93,13 +99,11 @@ module.exports = class LockedControls
 
         if not @dragToLook or @mouseStatus > 0
 
-            @moveState.yawLeft  = event.movementX or event.mozMovementX or event.webkitMovementX or 0
-            @moveState.pitchDown = event.movementY or event.mozMovementY or event.webkitMovementY or 0
+            xDiff = event.movementX or event.mozMovementX or event.webkitMovementX or 0
+            yDiff = event.movementY or event.mozMovementY or event.webkitMovementY or 0
 
-            #console.log event.webkitMovementX + ":" + event.webkitMovementY
-
-            @cursor_x += @moveState.yawLeft if @cursor_x + @moveState.yawLeft > 0 && @cursor_x + @moveState.yawLeft < @WIDTH
-            @cursor_y += @moveState.pitchDown if @cursor_y + @moveState.pitchDown > 0 && @cursor_y + @moveState.pitchDown < @HEIGHT
+            @cursor_x += xDiff if @cursor_x + xDiff > 0 && @cursor_x + xDiff < @WIDTH
+            @cursor_y += yDiff if @cursor_y + yDiff > 0 && @cursor_y + yDiff < @HEIGHT
 
             @updateRotationVector()
 
@@ -108,22 +112,19 @@ module.exports = class LockedControls
 
         switch event.keyCode
 
-            when 16 then @aimMode = 1
+            when 16 then @aimMode = 1 # shift
 
-            when 87 then @moveState.forward = 1 #w
-            when 65
-                @moveState.left = 1  # a
-
+            when 87 then #w
+            when 65 then @moveState.left = 1  # a
             when 83 then @moveState.back = 1  # s
-            when 68
-                @moveState.right = 1  #d
+            when 68 then @moveState.right = 1 # d
 
 
             when 32
-                @speed = @maxBoosterSpeed # space
+                @maxSpeed = @maxBoosterSpeed # space
+                @accel = @boosterAccel
                 @moveState.boost = true
 
-        #@prevKey = event.keyCode
         @updateMovementVector()
         #@updateRotationVector()
 
@@ -134,24 +135,20 @@ module.exports = class LockedControls
 
             when 16 then @aimMode = 0
 
-            when 37 then # left
-            when 38 then # up
-            when 39 then # right
-            when 40 then # down
-
-            when 87 then @moveState.forward = 0 #w
-            when 65
-                @moveState.left = 0 # a
+            when 87 then # w
+            when 65      # a
+                @moveState.left = 0
                 if @prevKey is 65 and not @moveState.rollLeft
                     @moveState.rollLeft = 1
             when 83 then @moveState.back = 0 # s
-            when 68
-                @moveState.right = 0 #d
+            when 68      # d
+                @moveState.right = 0
                 if @prevKey is 68 and not @moveState.rollRight
                     @moveState.rollRight = 1
 
             when 32
-                @speed = @maxNormalSpeed
+                @maxSpeed = @maxNormalSpeed
+                @accel = @boosterAccel
                 @moveState.boost = false
         
         @prevKey = event.keyCode
@@ -166,6 +163,16 @@ module.exports = class LockedControls
         if @enabled is false
             return
 
+        if @speed >= @minNormalSpeed
+            if @moveState.back
+                @speed -= delta * @accel
+                if @speed < @minNormalSpeed
+                    @speed = @minNormalSpeed
+            else if @speed < @maxSpeed
+                @speed += delta * @accel
+                if @speed > @maxSpeed
+                    @speed = @maxSpeed
+
         moveMult = delta * @speed
         rotMult = delta * @rollSpeed
         barrelMult = delta * @barrelRollSpeed
@@ -178,7 +185,9 @@ module.exports = class LockedControls
             @moveState.rollLeft = 0
             @moveState.rollRight = 0
             @rollAngle = 0
-            @updateRotationVector()
+        
+        @updateMovementVector()
+        @updateRotationVector()
 
         @targetObject.translateX(@movement.x * moveMult)
         @targetObject.translateY(@movement.y * moveMult)
@@ -193,17 +202,22 @@ module.exports = class LockedControls
 
     updateMovementVector: () =>
 
-        forward = ( @moveState.forward or ( @autoForward and not @moveState.back ) ) ? 1 : 0
+        forward = ( @moveState.forward or @autoForward ) ? 1 : 0
 
         @movement.x = ( -@moveState.left + @moveState.right )
         @movement.y = ( -@moveState.down + @moveState.up )
-        @movement.z =  -forward + @moveState.back
+        @movement.z =  -forward
 
     updateRotationVector: () =>
 
-        @rotationVector.x = ( -@moveState.pitchDown + @moveState.pitchUp )
-        @rotationVector.y = ( @moveState.yawRight  + -@moveState.yawLeft )
-        @rotationVector.z = ( -@moveState.rollRight + @moveState.rollLeft )
+        if @aimMode
+            @rotationVector.x = 0
+            @rotationVector.y = 0
+            @rotationVector.z = 0
+        else
+            @rotationVector.x = -(@cursor_y/@HEIGHT - 0.5)
+            @rotationVector.y = -(@cursor_x/@WIDTH - 0.5)
+            @rotationVector.z = ( -@moveState.rollRight + @moveState.rollLeft )
 
     getContainerDimensions: () =>
 

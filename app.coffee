@@ -7,10 +7,37 @@ app.use(express.static __dirname+'/public')
 
 GameServer = require './server/gameserver'
 
+passport = require 'passport'
+FacebookStrategy = require('passport-facebook').Strategy
+
+mongoose = require 'mongoose'
+
+uriString = process.env.MONGOLAB_URI or 'mongodb://localhost/SpaceBees'
+
+mongoose.connect uriString, (err, res) =>
+    if err
+        console.log 'ERROR connecting to: ' + uriString + '.' + err
+    else
+        console.log 'SUCCESS connecting to: ' + uriString
+
+strat = new FacebookStrategy {
+    clientID:'154939177928888',
+    clientSecret:'a9d9813dd3c4df68f8dbcdb38245111d',
+    callbackURL: "http://localhost:3333/auth/facebook/callback"},(accessToken, refreshToken, profile, done) ->
+        # do stuff with profile
+        console.log 'find user'
+        done(null,null)
+
+passport.use strat
+
 exports.startServer = (port, path, callback) -> 
     p = process.env.PORT || port
     app.get '/', (req, res) -> 
         res.sendfile './public/index.html'
+
+    app.get '/auth/facebook', passport.authenticate('facebook')
+
+    app.get '/auth/facebook/callback', passport.authenticate('facebook', { successRedirect: '/', failureRedirect: '/login' })
 
     server = app.listen p
 

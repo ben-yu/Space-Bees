@@ -4,6 +4,7 @@ module.exports = class GameServer
     constructor: (@io) ->
         @entities = {}
         @players = {}
+        @enemies = {}
         @playerCount = 0
 
         console.log 'new game server!'
@@ -12,6 +13,10 @@ module.exports = class GameServer
             console.log 'new connection!'
 
             socket.join('room')
+
+            socket.on 'disconnect', () =>
+                @broadcastPlayerDelete(socket.id)
+                @removePlayer(socket.id)
 
             socket.on 'players_read', (data) =>
                 socket.emit 'players_read', @players
@@ -34,9 +39,23 @@ module.exports = class GameServer
                 @removePlayer(data.id)
                 socket.emit 'ship_delete', @players[data.id]
 
-            socket.on 'disconnect', () =>
-                @broadcastPlayerDelete(socket.id)
-                @removePlayer(socket.id)
+            #Enemy CRUD
+            socket.on 'enemy_create', (data) =>
+                newPlayer = new Enemy(socket,this, data)
+                @onPlayerConnect(newPlayer)
+                socket.emit 'enemy_create', newPlayer.getState()
+        
+            socket.on 'enemy_read', (data) =>
+                socket.emit 'enemy_read', @players[data.id]
+
+            socket.on 'enemy_update', (data) =>
+                @updatePlayer(data)
+                @broadcastPlayerUpdate(data)
+                socket.emit 'enemy_update', @players[data.id]
+
+            socket.on 'enemy_delete', (data) =>
+                @removePlayer(data.id)
+                socket.emit 'enemy_delete', @players[data.id]
 
     run: () =>
         # Update every interval of 
