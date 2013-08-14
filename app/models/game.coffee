@@ -1,8 +1,10 @@
 #Ship = require 'models/ship'
-ActivePlayers = require 'models/activeplayers'
+ActivePlayers = require 'collections/activeplayers'
 Bee = require 'models/bee'
 Ship = require 'models/ship'
 Missile = require 'models/missile'
+Bullet = require 'models/bullet'
+Bullets = require 'collections/bullets'
 LockedControls = require 'lib/lockedcontrols'
 ChaseCamera = require 'lib/chasecamera'
 
@@ -14,6 +16,7 @@ module.exports = class Game extends Backbone.Model
     start: =>
         container = $('#game')
 
+        @lastFireStandard = +new Date()
         @lastFireMissile = +new Date()
 
         @clock = new THREE.Clock()
@@ -21,7 +24,6 @@ module.exports = class Game extends Backbone.Model
         @pickingObjects = []
         @materials = {}
 
-        # set the scene size
         WIDTH = window.innerWidth
         HEIGHT = window.innerHeight
 
@@ -79,7 +81,7 @@ module.exports = class Game extends Backbone.Model
         skybox = new THREE.Mesh( new THREE.CubeGeometry(20000, 20000, 20000), skymaterial )
         @scene.add skybox
 
-        # Terrain
+        # Terrain Generation
 
         initColor = new THREE.Color( 0x497f13 )
         initTexture = THREE.ImageUtils.generateDataTexture( 1, 1, initColor )
@@ -99,6 +101,8 @@ module.exports = class Game extends Backbone.Model
         @scene.add floor
         @objects.push floor
 
+        @generateTerrain()
+        ###
         @materials.scrapers1 = new THREE.MeshBasicMaterial({
             map: SpaceBees.Loader.get("textures", "scrapers1.diffuse"),
             ambient: 0xcccccc
@@ -118,6 +122,7 @@ module.exports = class Game extends Backbone.Model
                 building.position.set( 5000*i - 5000, 250, 5000*j - 5000)
                 @scene.add building
                 @objects.push building
+        ###
 
         # Players
 
@@ -128,9 +133,9 @@ module.exports = class Game extends Backbone.Model
         @players.fetch()
 
         @enemies = new Backbone.Collection()
-        @enemy = new Bee()
-        @scene.add @enemy.mesh
-        @addToPicking @enemy
+        #@enemy = new Bee()
+        #@scene.add @enemy.mesh
+        #@addToPicking @enemy
 
         @controls = new LockedControls @ship.mesh
 
@@ -140,6 +145,8 @@ module.exports = class Game extends Backbone.Model
         @scene.add @camera
 
         # Projectiles
+        @bullets = new Bullets([],{parentScene:@scene, selfId:window.socket.socket.sessionid})
+        @bullets.fetch()
         @missiles = new Backbone.Collection()
 
         # Lighting
@@ -335,18 +342,134 @@ module.exports = class Game extends Backbone.Model
             for vertexColor in f.vertexColors
                 vertexColor = color
 
-    fire: (type) =>
-        missile = new Missile({
-            position:@ship.position.clone(),
-            velocity:@ship.rotationV.clone().multiplyScalar(500)
+    generateTexture: =>
+        canvas  = document.createElement( 'canvas' )
+        canvas.width = 32
+        canvas.height = 64
+        context = canvas.getContext('2d')
+
+        #plain it in white
+        context.fillStyle  = '#ffffff'
+        context.fillRect(0, 0, 32, 64)
+        # draw the window rows - with a small noise to simulate light variations in each room
+        for y in [2...64] by 2
+            for x in [0...32] by 2
+                value   = Math.floor( Math.random() * 64 )
+                context.fillStyle = 'rgb(' + [value, value, value].join(',')  + ')'
+                context.fillRect( x, y, 2, 1 )
+
+        # build a bigger canvas and copy the small one in it
+        # This is a trick to upscale the texture without filtering
+        canvas2 = document.createElement('canvas')
+        canvas2.width  = 512
+        canvas2.height = 1024
+        context = canvas2.getContext('2d')
+
+        # disable smoothing
+        context.imageSmoothingEnabled = false
+        context.webkitImageSmoothingEnabled  = false
+        context.mozImageSmoothingEnabled = false
+
+        # then draw the image
+        context.drawImage( canvas, 0, 0, canvas2.width, canvas2.height )
+        return canvas2
+
+    generateTerrain: =>
+
+        geometry = new THREE.CubeGeometry(1,1,1)
+
+        # move pivot
+        geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0.5,0))
+        geometry.faces.splice(3,1); # remove bottom face
+        geometry.faceVertexUvs[0][2][0].set( 0, 0 )
+        geometry.faceVertexUvs[0][2][1].set( 0, 0 )
+        geometry.faceVertexUvs[0][2][2].set( 0, 0 )
+        geometry.faceVertexUvs[0][2][3].set( 0, 0 )
+
+        buildingMesh = new THREE.Mesh(geometry)
+
+        # base colors for vertexColors. light is for vertices at the top, shaddow is for the ones at the bottom
+        light = new THREE.Color( 0xffffff )
+        shadow = new THREE.Color( 0x303050 )
+
+        cityGeometry = new THREE.Geometry()
+
+        for i in [0...20000]
+            # put a random position
+            buildingMesh.position.x   = Math.floor( Math.random() * 200 - 100 ) * 10
+            buildingMesh.position.z   = Math.floor( Math.random() * 200 - 100 ) * 10
+            # put a random rotation
+            buildingMesh.rotation.y   = Math.random()*Math.PI*2
+            # put a random scale
+            buildingMesh.scale.x  = Math.random() * Math.random() * Math.random() * Math.random() * 50 + 10
+            buildingMesh.scale.y  = (Math.random() * Math.random() * Math.random() * buildingMesh.scale.x) * 8 + 8
+            buildingMesh.scale.z  = buildingMesh.scale.x
+
+            # establish the base color for the buildingMesh
+            value   = 1 - Math.random() * Math.random()
+            baseColor   = new THREE.Color().setRGB( value + Math.random() * 0.1, value, value + Math.random() * 0.1 )
+            # set topColor/bottom vertexColors as adjustement of baseColor
+            topColor    = baseColor.clone().multiply( light )
+            bottomColor = baseColor.clone().multiply( shadow )
+            # set .vertexColors for each face
+            geometry  = buildingMesh.geometry
+            jl = geometry.faces.length
+            for j in [0...jl]
+                if ( j == 2 )
+                    # set face.vertexColors on root face
+                    geometry.faces[ j ].vertexColors = [ baseColor, baseColor, baseColor, baseColor ]
+                else
+                    # set face.vertexColors on sides faces
+                    geometry.faces[ j ].vertexColors = [ topColor, bottomColor, bottomColor, topColor ]
+            # merge it with cityGeometry - very important for performance
+            THREE.GeometryUtils.merge( cityGeometry, buildingMesh )
+
+        # generate the texture
+        texture = new THREE.Texture(@generateTexture())
+        texture.anisotropy = @renderer.getMaxAnisotropy()
+        texture.needsUpdate = true
+
+        # build the mesh
+        material  = new THREE.MeshLambertMaterial({
+            map : texture,
+            vertexColors : THREE.VertexColors
         })
-        m2 = new THREE.Matrix4()
-        m2.makeRotationY(-Math.PI/2)
-        m2.multiplyMatrices(m2,@controls.targetObject.matrix)
-        m2.multiplyScalar(0.2)
-        missile.mesh.applyMatrix(m2)
-        @missiles.add(missile)
-        @scene.add missile.mesh
+        
+        cityMesh = new THREE.Mesh(cityGeometry, material)
+
+        cityMesh.scale.set(15.0,15.0,15.0)
+        cityMesh.position.y = -250
+
+        @scene.add cityMesh
+
+    fire: (type) =>
+        switch type
+            when 'standard'
+                @ship.shotsFired += 1
+                bullet = new Bullet({
+                    shotID:@ship.shotsFired,
+                    position:@ship.position.clone(),
+                    velocity:@ship.rotationV.clone().multiplyScalar(500)
+                })
+                m2 = new THREE.Matrix4()
+                m2.makeRotationY(-Math.PI/2)
+                m2.multiplyMatrices(m2,@controls.targetObject.matrix)
+                m2.multiplyScalar(0.2)
+                bullet.mesh.applyMatrix(m2)
+                @bullets.add(bullet)
+                @scene.add bullet.mesh
+            when 'missile'
+                missile = new Missile({
+                    position:@ship.position.clone(),
+                    velocity:@ship.rotationV.clone().multiplyScalar(500)
+                })
+                m2 = new THREE.Matrix4()
+                m2.makeRotationY(-Math.PI/2)
+                m2.multiplyMatrices(m2,@controls.targetObject.matrix)
+                m2.multiplyScalar(0.2)
+                missile.mesh.applyMatrix(m2)
+                @missiles.add(missile)
+                @scene.add missile.mesh
 
     gameloop: =>
 
@@ -376,19 +499,37 @@ module.exports = class Game extends Backbone.Model
 
             # Active Players
             @players.fetch()
+            @bullets.fetch()
 
             # Projectiles
+            if @controls.fireStandard
+                if +new Date() - @lastFireStandard > 100
+                    @lastFireStandard = +new Date()
+                    @fire("standard")
+
+            if @controls.fireMissile
+                if +new Date() - @lastFireMissile > 500
+                    @lastFireMissile = +new Date()
+                    @fire("missile")
+
+            @bullets.forEach (bullet) =>
+                #bullet.update()
+                bullet.save(null,{
+                    success: (model, response) =>
+                        console.log "success"
+                    error: (model, response) =>
+                        console.log "error"
+                })
+                if (new THREE.Vector3().subVectors(bullet.startPos, bullet.position).length()> bullet.maxDist)
+                    @scene.remove(bullet.mesh)
+                    bullet.destroy()
+
 
             @missiles.forEach (bullet) =>
                 bullet.update()
                 if (new THREE.Vector3().subVectors(bullet.startPos, bullet.position).length()> bullet.maxDist)
                     @scene.remove(bullet.mesh)
                     bullet.destroy()
-
-            if @controls.fireMissile
-                if +new Date() - @lastFireMissile > 500
-                    @lastFireMissile = +new Date()
-                    @fire("missile")
             
             # Collision
             @ray.ray.origin.copy @controls.getObject().position

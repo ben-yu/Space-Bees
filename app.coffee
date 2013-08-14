@@ -5,6 +5,7 @@ app = express()
 
 app.use(express.static __dirname+'/public')
 
+THREE = require 'three'
 GameServer = require './server/gameserver'
 
 passport = require 'passport'

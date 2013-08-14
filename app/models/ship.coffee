@@ -13,6 +13,7 @@ module.exports = class ShipModel extends Backbone.Model
         @lastFireMissile = 0
         @rotationV = new THREE.Vector3(0, 1, 0)
         @level = 0
+        @shotsFired = 0
 
         @mesh = null
 
@@ -34,9 +35,7 @@ module.exports = class ShipModel extends Backbone.Model
     damage : ->
 
     getState: () =>
-        return {'id':@id,'type':@type,
-        'x':@position.x,'y':@position.y,'z':@position.z
-        'dir_x':@mesh.rotation.x,'dir_y':@mesh.rotation.y,'dir_z':@mesh.rotation.z}
+        return {'id':@id,'type':@type,'pos':@position, 'dir':@mesh.rotation}
 
     sync : (method, model, options) =>
         options.data ?= {}
@@ -48,12 +47,8 @@ module.exports = class ShipModel extends Backbone.Model
 
         @connection.on 'ship_' + method, (data) ->
             model.id = data.id
-            model.position.x = data.x
-            model.position.y = data.y
-            model.position.z = data.z
-            model.mesh.rotation.x = data.dir_x
-            model.mesh.rotation.y = data.dir_y
-            model.mesh.rotation.z = data.dir_z
+            model.position.copy(data.pos)
+            model.mesh.rotation.copy(data.dir)
 
     name: =>
         if @collection and @collection.name then return @collection.name else throw new Error "Socket model has no name (#{@.collection})"

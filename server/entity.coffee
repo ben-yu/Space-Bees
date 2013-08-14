@@ -1,11 +1,12 @@
+THREE = require 'three'
+
 module.exports = class Entity
-	constructor: (id, @type, @kind, @x, @y, @z) ->
-		@id = id
+    constructor: (@id, @type, @kind, pos, dir) ->
+        @pos = new THREE.Vector3(pos.x,pos.y,pos.z)
+        @dir = new THREE.Vector3(dir.x,dir.y,dir.z)
 
-	setPosition: (x,y,z) =>
-		@x = x
-		@y = y
-		@z = z
+    setPosition: (pos) =>
+        @pos = pos
 
-	getState: () =>
-		return {'id':@id,'type':@type,'x':@x,'y':@y,'z':@z}
+    getState: =>
+        return {'id':@id,'type':@type,'pos':@pos,'dir':@dir}
