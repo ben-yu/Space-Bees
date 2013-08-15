@@ -15,75 +15,78 @@ module.exports = class GameServer
 
         console.log 'New Game Server!'
 
-        @io.sockets.on 'connection', (socket) =>
+        @io.sockets.on 'connection', (client) =>
             console.log 'new connection!'
 
-            socket.join('room')
+            client.join('room')
 
-            socket.on 'disconnect', () =>
-                @broadcastPlayerDelete(socket.id)
-                @removePlayer(socket.id)
+            client.emit 'client_id', client.id
 
-            socket.on 'players_read', (data) =>
-                socket.emit 'players_read', @players
+            client.on 'disconnect', () =>
+                @removeBullets(client.id)
+                @broadcastPlayerDelete(client.id)
+                @removePlayer(client.id)
+
+            client.on 'players_read', (data) =>
+                client.emit 'players_read', @players
 
             #Player CRUD
-            socket.on 'ship_create', (data) =>
-                newPlayer = new Player(socket,this, data)
+            client.on 'ship_create', (data) =>
+                newPlayer = new Player(client,this, data)
                 @onPlayerConnect(newPlayer)
-                socket.emit 'ship_create', newPlayer.getState()
+                client.emit 'ship_create', newPlayer.getState()
                 console.log 'Create Ship'
         
-            socket.on 'ship_read', (data) =>
-                socket.emit 'ship_read', @players[data.id]
+            client.on 'ship_read', (data) =>
+                client.emit 'ship_read', @players[data.id]
 
-            socket.on 'ship_update', (data) =>
+            client.on 'ship_update', (data) =>
                 @updatePlayer(data)
                 @broadcastPlayerUpdate(data)
-                socket.emit 'ship_update', @players[data.id]
+                client.emit 'ship_update', @players[data.id]
 
-            socket.on 'ship_delete', (data) =>
+            client.on 'ship_delete', (data) =>
                 @removePlayer(data.id)
-                socket.emit 'ship_delete', @players[data.id]
+                client.emit 'ship_delete', @players[data.id]
 
             #Bullet CRUD
-            socket.on 'bullet_create', (data) =>
-                bullet = new Bullet(socket,this, data)
+            client.on 'bullet_create', (data) =>
+                bullet = new Bullet(client,this, data)
                 @addBullet(bullet)
-                socket.emit 'bullet_create', bullet.getState()
+                client.emit 'bullet_create', bullet.getState()
         
-            socket.on 'bullet_read', (data) =>
-                socket.emit 'bullet_read', @bullets[data.id]
+            client.on 'bullet_read', (data) =>
+                client.emit 'bullet_read', @bullets[data.id]
 
-            socket.on 'bullet_update', (data) =>
+            client.on 'bullet_update', (data) =>
                 @updateBullet(data)
                 @broadcastBulletUpdate(data)
-                socket.emit 'bullet_update', @bullets[data.id]
+                client.emit 'bullet_update', @bullets[data.id]
 
-            socket.on 'bullet_delete', (data) =>
+            client.on 'bullet_delete', (data) =>
                 @removeBullet(data.id)
-                socket.emit 'bullet_delete', @bullets[data.id]
+                client.emit 'bullet_delete', @bullets[data.id]
 
-            socket.on 'bullets_read', (data) =>
-                socket.emit 'bullets_read', @bullets
+            client.on 'bullets_read', (data) =>
+                client.emit 'bullets_read', @bullets
 
             #Enemy CRUD
-            socket.on 'enemy_create', (data) =>
-                newPlayer = new Enemy(socket,this, data)
+            client.on 'enemy_create', (data) =>
+                newPlayer = new Enemy(client,this, data)
                 @onPlayerConnect(newPlayer)
-                socket.emit 'enemy_create', newPlayer.getState()
+                client.emit 'enemy_create', newPlayer.getState()
         
-            socket.on 'enemy_read', (data) =>
-                socket.emit 'enemy_read', @players[data.id]
+            client.on 'enemy_read', (data) =>
+                client.emit 'enemy_read', @players[data.id]
 
-            socket.on 'enemy_update', (data) =>
+            client.on 'enemy_update', (data) =>
                 @updatePlayer(data)
                 @broadcastPlayerUpdate(data)
-                socket.emit 'enemy_update', @players[data.id]
+                client.emit 'enemy_update', @players[data.id]
 
-            socket.on 'enemy_delete', (data) =>
+            client.on 'enemy_delete', (data) =>
                 @removePlayer(data.id)
-                socket.emit 'enemy_delete', @players[data.id]
+                client.emit 'enemy_delete', @players[data.id]
 
         @run()
 
@@ -116,8 +119,10 @@ module.exports = class GameServer
     removePlayer: (id) =>
         delete @players[id]
 
-    removeBullet: (id) =>
-        delete @bullets[id]
+    removeBullets: (id) =>
+        for k,v of @bullets
+            if v.playerID is id
+                delete @bullets[k]
 
     broadcastPlayerUpdate: (data) =>
         @io.sockets.in('room').emit('players_update',  @players[data.id])
@@ -137,7 +142,7 @@ module.exports = class GameServer
     updateGroups: () =>
         t = 1000 / @updatesPerSecond
         for k,v of @bullets
-            #oldDir = new THREE.Vector3(v.dir.x,v.dir.y,v.dir.z)
-            #newpos = new THREE.Vector3(v.pos.x,v.pos.y,v.pos.z)
-            #v.pos = newpos.add(oldDir.multiplyScalar(t))
+            oldDir = new THREE.Vector3(v.dir.x,v.dir.y,v.dir.z)
+            newpos = new THREE.Vector3(v.pos.x,v.pos.y,v.pos.z)
+            v.pos = newpos.add(oldDir.multiplyScalar(t))
             @io.sockets.in('room').emit('bullets_update',  @bullets[k])

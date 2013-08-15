@@ -3,12 +3,13 @@ module.exports = class BulletModel extends Backbone.Model
         @connection = window.socket
         @startTime = +new Date()
         @socket = @get("socket")
+        @playerID = @get("session_id")
         @shotID = @get("shotID")
-        @startPos = @get("position").clone()
+        @id = @get("id") or @playerID + @shotID
+        @position = @get("position").clone()
         @maxDist = @get("maxDist") or 10000
-        @position = @startPos.clone()
         @velocity = @get("velocity")
-        @mesh = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshNormalMaterial())
+        @mesh = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshNormalMaterial())
         @mesh.position = @position
         return
 
@@ -17,7 +18,7 @@ module.exports = class BulletModel extends Backbone.Model
         @position.copy(@startPos).add(@velocity.clone().multiplyScalar(t))
 
     getState: () =>
-        return {'id':@id, 'playerID':window.socket.socket.sessionid,'shotID':@shotID ,'type':@type,'pos':@position, 'dir':@mesh.rotation}
+        return {'id':@id, 'playerID':@playerID,'shotID':@shotID ,'type':@type,'pos':@position, 'dir':@velocity}
 
     sync : (method, model, options) =>
         options.data ?= {}

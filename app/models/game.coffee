@@ -13,8 +13,10 @@ module.exports = class Game extends Backbone.Model
 
     initialize: ->
 
-    start: =>
+    start: (session_id) =>
         container = $('#game')
+
+        @session_id = session_id
 
         @lastFireStandard = +new Date()
         @lastFireMissile = +new Date()
@@ -101,41 +103,17 @@ module.exports = class Game extends Backbone.Model
         @scene.add floor
         @objects.push floor
 
-        @generateTerrain()
-        ###
-        @materials.scrapers1 = new THREE.MeshBasicMaterial({
-            map: SpaceBees.Loader.get("textures", "scrapers1.diffuse"),
-            ambient: 0xcccccc
-        })
-
-        @materials.scrapers2 = new THREE.MeshBasicMaterial({
-            map: SpaceBees.Loader.get("textures", "scrapers2.diffuse"),
-            ambient: 0xcccccc
-        })
-
-        for i in [0..2]
-            for j in [0..2]
-                if i+j%2 == 0
-                    building = new THREE.Mesh( SpaceBees.Loader.get('geometries','scrapers1'), @materials.scrapers1 )
-                else
-                    building = new THREE.Mesh( SpaceBees.Loader.get('geometries','scrapers2'), @materials.scrapers2 )
-                building.position.set( 5000*i - 5000, 250, 5000*j - 5000)
-                @scene.add building
-                @objects.push building
-        ###
+        #@generateTerrain()
 
         # Players
 
-        @ship = new Ship({id:window.socket.socket.sessionid})
+        @ship = new Ship({id:session_id})
         @camera.position.z = 300
 
-        @players = new ActivePlayers([],{parentScene:@scene, selfId:window.socket.socket.sessionid})
+        @players = new ActivePlayers([],{parentScene:@scene, selfId:session_id})
         @players.fetch()
 
         @enemies = new Backbone.Collection()
-        #@enemy = new Bee()
-        #@scene.add @enemy.mesh
-        #@addToPicking @enemy
 
         @controls = new LockedControls @ship.mesh
 
@@ -145,7 +123,7 @@ module.exports = class Game extends Backbone.Model
         @scene.add @camera
 
         # Projectiles
-        @bullets = new Bullets([],{parentScene:@scene, selfId:window.socket.socket.sessionid})
+        @bullets = new Bullets([],{parentScene:@scene, selfId:session_id})
         @bullets.fetch()
         @missiles = new Backbone.Collection()
 
@@ -337,7 +315,6 @@ module.exports = class Game extends Backbone.Model
         @target_id = @pickObject(x,y)
 
     applyVertexColors: (geom, color) =>
-
         for f in geom.faces
             for vertexColor in f.vertexColors
                 vertexColor = color
@@ -417,12 +394,12 @@ module.exports = class Game extends Backbone.Model
             for j in [0...jl]
                 if ( j == 2 )
                     # set face.vertexColors on root face
-                    geometry.faces[ j ].vertexColors = [ baseColor, baseColor, baseColor, baseColor ]
+                    geometry.faces[j].vertexColors = [ baseColor, baseColor, baseColor, baseColor ]
                 else
                     # set face.vertexColors on sides faces
-                    geometry.faces[ j ].vertexColors = [ topColor, bottomColor, bottomColor, topColor ]
+                    geometry.faces[j].vertexColors = [ topColor, bottomColor, bottomColor, topColor ]
             # merge it with cityGeometry - very important for performance
-            THREE.GeometryUtils.merge( cityGeometry, buildingMesh )
+            THREE.GeometryUtils.merge(cityGeometry, buildingMesh)
 
         # generate the texture
         texture = new THREE.Texture(@generateTexture())
@@ -447,17 +424,19 @@ module.exports = class Game extends Backbone.Model
             when 'standard'
                 @ship.shotsFired += 1
                 bullet = new Bullet({
+                    session_id:@session_id,
                     shotID:@ship.shotsFired,
                     position:@ship.position.clone(),
-                    velocity:@ship.rotationV.clone().multiplyScalar(500)
+                    velocity:@ship.rotationV.clone()
                 })
-                m2 = new THREE.Matrix4()
-                m2.makeRotationY(-Math.PI/2)
-                m2.multiplyMatrices(m2,@controls.targetObject.matrix)
-                m2.multiplyScalar(0.2)
-                bullet.mesh.applyMatrix(m2)
                 @bullets.add(bullet)
                 @scene.add bullet.mesh
+                bullet.save(null,{
+                    success: (model, response) =>
+                        #console.log "success"
+                    error: (model, response) =>
+                        #console.log "error"
+                })
             when 'missile'
                 missile = new Missile({
                     position:@ship.position.clone(),
@@ -512,17 +491,11 @@ module.exports = class Game extends Backbone.Model
                     @lastFireMissile = +new Date()
                     @fire("missile")
 
-            @bullets.forEach (bullet) =>
+            #@bullets.forEach (bullet) =>
                 #bullet.update()
-                bullet.save(null,{
-                    success: (model, response) =>
-                        console.log "success"
-                    error: (model, response) =>
-                        console.log "error"
-                })
-                if (new THREE.Vector3().subVectors(bullet.startPos, bullet.position).length()> bullet.maxDist)
-                    @scene.remove(bullet.mesh)
-                    bullet.destroy()
+                #if (new THREE.Vector3().subVectors(bullet.startPos, bullet.position).length()> bullet.maxDist)
+                    #@scene.remove(bullet.mesh)
+                    #bullet.destroy()
 
 
             @missiles.forEach (bullet) =>
