@@ -26,6 +26,7 @@
     "coffee-script": "1.6.x",
     "passport": "0.1.17",
     "passport-facebook": "0.1.5",
+    "three":"0.58",
 
     "css-brunch": ">= 1.0 < 1.7",
     "stylus-brunch": ">= 1.0 < 1.7",
