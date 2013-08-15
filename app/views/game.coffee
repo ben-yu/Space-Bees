@@ -1,5 +1,3 @@
-Game = require 'models/game'
-
 module.exports = class GameView extends Backbone.View
     className: 'game'
 

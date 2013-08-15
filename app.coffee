@@ -11,16 +11,6 @@ GameServer = require './server/gameserver'
 passport = require 'passport'
 FacebookStrategy = require('passport-facebook').Strategy
 
-mongoose = require 'mongoose'
-
-uriString = process.env.MONGOLAB_URI or 'mongodb://localhost/SpaceBees'
-
-mongoose.connect uriString, (err, res) =>
-    if err
-        console.log 'ERROR connecting to: ' + uriString + '.' + err
-    else
-        console.log 'SUCCESS connecting to: ' + uriString
-
 strat = new FacebookStrategy {
     clientID:'154939177928888',
     clientSecret:'a9d9813dd3c4df68f8dbcdb38245111d',
