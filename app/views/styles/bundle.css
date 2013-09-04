@@ -1328,7 +1328,8 @@ input[type='password'] {
     display: inline-block;
     height: 21px;
     margin: -7px 0;
-    width: 89px; }
+    width: 89px; 
+    cursor: pointer;}
 
 .header-navigation {
   font-family: "Helvetica Neue", Arial, sans-serif;

@@ -6,9 +6,10 @@ exports.config =
                 'scripts/vendor.js': /^vendor/
             order:
                 before: [
+                    'vendor/scripts/underscore-1.3.3.js'
+                    'vendor/scripts/underscore.deferred.js'
                     'vendor/scripts/console-polyfill.js'
                     'vendor/scripts/jquery.js'
-                    'vendor/scripts/lodash.js'
                     'vendor/scripts/backbone.js'
                     'vendor/scripts/three.js'
                     'vendor/scripts/howler.js'

@@ -1,6 +1,7 @@
 Game = require 'models/game'
 GameView = require 'views/game'
 Loader = require 'lib/loader'
+FacebookView = require 'views/facebook'
 
 module.exports = class LauncherView extends Backbone.View
     className: 'launcher'
@@ -11,12 +12,21 @@ module.exports = class LauncherView extends Backbone.View
 
     events:
         "click .button-huge" : "startGame"
+        "click .fb-signup" : "login"
 
     initialize: =>
+        @facebook = new FacebookView 
+            appId: '154939177928888'
+            scope: 'email'
+        @facebook.loadSDK()
         @render()
+        @facebook.getLoginStatus()
 
     render: ->
         this.$el.html @template
+
+    login: (event) ->
+        @facebook.triggerLogin "loginbutton"
 
     startGame: (event) ->
         this.$el.hide()
