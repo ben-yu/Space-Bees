@@ -28,28 +28,29 @@ module.exports = class Bullets extends Backbone.Collection
                 options.success data
 
         @connection.on 'bullets_' + method, (data) =>
-            #console.log method
             switch method
                 when 'create' then
                 when 'read'
-                    for k,v of data
-                        if @get(k)?
-                            bullet = @get(k)
+                    for v in data
+                        if @get(v.id)?
+                            console.log v.pos
+                            bullet = @get(v.id)
                             bullet.mesh.position.copy(v.pos)
                             bullet.mesh.rotation.copy(v.dir)
                         else if v.playerID isnt @selfId
-                            #console.log v.playerID + ":" + @selfId
+                            console.log v.playerID + ":" + @selfId
                             pos = new THREE.Vector3(v.pos.x,v.pos.y,v.pos.z)
-                            bullet = new Bullet({id:k,playerID:v.playerID,shotID:v.shotID,position:pos})
+                            bullet = new Bullet({playerID:v.playerID,shotID:v.shotID,position:pos})
                             @add(bullet)
                             @parentScene.add(bullet.mesh)
                 when 'update'
-                    for k,v of data
-                        if @get(k)?
-                            bullet = @get(k)
+                    for v in data
+                        if @get(v.id)?
+                            bullet = @get(v.id)
                             bullet.mesh.position.copy(v.pos)
                             bullet.mesh.rotation.copy(v.dir)
                         else if v.playerID isnt @selfId
+                            console.log v.playerID + ":" + @selfId
                             pos = new THREE.Vector3(v.pos.x,v.pos.y,v.pos.z)
                             bullet = new Bullet({playerID:v.playerID,shotID:v.shotID,position:pos})
                             @add(bullet)

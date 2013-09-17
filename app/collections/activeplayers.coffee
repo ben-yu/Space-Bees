@@ -23,6 +23,10 @@ module.exports = class ActivePlayers extends Backbone.Collection
 
     sync: (method, model, options) =>
         options.data ?= {}
+        #console.log method
+        if method is 'create'
+            console.log 'New Player'
+
         @connection.emit 'players_' + method, model.getState(), options.data, (err, data) ->
             if err
                 console.error "error in sync with #{method} #{@.name()} with server (#{err})"

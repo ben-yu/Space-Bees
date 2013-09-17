@@ -3,7 +3,7 @@ module.exports = class ShipModel extends Backbone.Model
         @connection = window.socket
         @set "position", @position = @get("position") or new THREE.Vector3()
         @set "velocity", new THREE.Vector3(0, 0, 0)
-        @falling = true
+        @scaleFactor = 15.0
         @startDate = +new Date()
         @lastFire = 0
         @lastShot = 0
@@ -22,10 +22,11 @@ module.exports = class ShipModel extends Backbone.Model
 
     update : ->
     loadModel : =>
-        merged = new THREE.Geometry()
-
-        @mesh = new THREE.Mesh(SpaceBees.Loader.get('geometries','ship'), new THREE.MeshNormalMaterial())
-        @mesh.scale.set(15.0,15.0,15.0)
+        geom = SpaceBees.Loader.get('geometries','ship')
+        geom.computeBoundingBox()
+        @minBox = geom.boundingBox.min.multiplyScalar(@scaleFactor)
+        @mesh = new THREE.Mesh(geom, new THREE.MeshNormalMaterial())
+        @mesh.scale.set(@scaleFactor,@scaleFactor,@scaleFactor)
         @mesh.position.copy(@position)
 
     setControls : ->
@@ -35,10 +36,11 @@ module.exports = class ShipModel extends Backbone.Model
     damage : ->
 
     getState: () =>
-        return {'id':@id,'type':@type,'pos':@position, 'dir':@mesh.rotation}
+        return {'id':@id,'type':@type,'pos':@position, 'dir':@mesh.rotation, 'box':@minBox}
 
     sync : (method, model, options) =>
         options.data ?= {}
+        #console.log method
         @connection.emit 'ship_' + method, model.getState(), options.data, (err, data) ->
             if err
                 console.error "error in sync with #{method} #{@.name()} with server (#{err})"

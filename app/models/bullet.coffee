@@ -5,10 +5,10 @@ module.exports = class BulletModel extends Backbone.Model
         @socket = @get("socket")
         @playerID = @get("session_id")
         @shotID = @get("shotID")
-        @id = @get("id") or @playerID + @shotID
         @position = @get("position").clone()
         @maxDist = @get("maxDist") or 10000
         @velocity = @get("velocity")
+
         @mesh = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshNormalMaterial())
         @mesh.position = @position
         return
@@ -22,14 +22,18 @@ module.exports = class BulletModel extends Backbone.Model
 
     sync : (method, model, options) =>
         options.data ?= {}
+        console.log 'bullet ' + method
         @connection.emit 'bullet_' + method, model.getState(), options.data, (err, data) ->
             if err
                 console.error "error in sync with #{method} #{@.name()} with server (#{err})"
             else
                 options.success data
 
-        @connection.on 'bullet_' + method, (data) ->
-            model.id = data.id
+        @connection.on 'bullet_' + method, (data) =>
+            if model.id is undefined
+                model.id = data.id
             model.position.copy(data.pos)
             model.mesh.rotation.copy(data.dir)
+
+        return
         

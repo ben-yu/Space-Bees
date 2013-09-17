@@ -107,13 +107,14 @@ module.exports = class Game extends Backbone.Model
 
         # Players
 
-        @ship = new Ship({id:session_id})
-        @camera.position.z = 300
-
         @players = new ActivePlayers([],{parentScene:@scene, selfId:session_id})
         @players.fetch()
 
         @enemies = new Backbone.Collection()
+
+        # Player's ship
+        #@ship = new Ship({id:session_id})
+        @ship = new Ship()
 
         @controls = new LockedControls @ship.mesh
 
@@ -312,7 +313,7 @@ module.exports = class Game extends Backbone.Model
         return id
 
     lockOnTarget: (x,y) =>
-        @target_id = @pickObject(x,y)
+        #@target_id = @pickObject(x,y)
 
     applyVertexColors: (geom, color) =>
         for f in geom.faces
@@ -430,13 +431,15 @@ module.exports = class Game extends Backbone.Model
                     velocity:@ship.rotationV.clone()
                 })
                 @bullets.add(bullet)
-                @scene.add bullet.mesh
                 bullet.save(null,{
                     success: (model, response) =>
                         #console.log "success"
                     error: (model, response) =>
                         #console.log "error"
                 })
+                console.log @bullets.models
+                console.log @bullets.get(0)
+
             when 'missile'
                 missile = new Missile({
                     position:@ship.position.clone(),
@@ -475,10 +478,9 @@ module.exports = class Game extends Backbone.Model
             if @controls.aimMode
                 @lockOnTarget(@controls.cursor_x,@controls.cursor_y)
 
-
             # Active Players
             @players.fetch()
-            @bullets.fetch()
+            @bullets.fetch({remove: false})
 
             # Projectiles
             if @controls.fireStandard

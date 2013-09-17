@@ -21,7 +21,6 @@ module.exports = class Bee extends Backbone.Model
         @minBox = geom.boundingBox.min
 
         @mesh = new THREE.Mesh(geom, new THREE.MeshNormalMaterial())
-        @mesh.scale.set(2.0,2.0,2.0)
         @mesh.position.copy(@position)
 
     setControls : ->
