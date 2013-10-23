@@ -39,23 +39,27 @@ module.exports = class ActivePlayers extends Backbone.Collection
             switch method
                 when 'create' then
                 when 'read'
-                    for k,v of data
-                        if @get(k)
-                            ship = @get(k)
+                    for v in data
+                        if @get(v.id)
+                            ship = @get(v.id)
                             ship.mesh.position.copy(v.pos)
                             ship.mesh.rotation.copy(v.dir)
-                        else if k isnt @selfId
+                            console.log v.id
+                        else if v.id isnt @selfId
+                            console.log v.id
                             pos = new THREE.Vector3(v.x,v.y,v.z)
                             ship = new Ship({id:v.id,position:pos})
                             @add(ship)
                             @parentScene.add(ship.mesh)
                 when 'update'
-                    for k,v of data
-                        if @get(k)
-                            ship = @get(k)
+                    for v in data
+                        if @get(v.id)
+                            ship = @get(v.id)
                             ship.mesh.position.copy(v.pos)
                             ship.mesh.rotation.copy(v.dir)
-                        else if k isnt @selfId
+                            console.log data
+                        else if v.id isnt @selfId
+                            console.log v.id
                             pos = new THREE.Vector3(v.x,v.y,v.z)
                             ship = new Ship({id:v.id,position:pos})
                             @add(ship)

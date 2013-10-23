@@ -34,26 +34,26 @@ module.exports = class GameServer
                 console.log 'New Player'
 
             client.on 'players_read', (data) =>
-                client.emit 'players_read', @players
+                client.emit 'players_read', _.map(@players, (v, k) -> return v.getState())
 
             # Player CRUD
             client.on 'ship_create', (data) =>
                 newPlayer = new Player(client, this, data)
-                @onPlayerConnect(newPlayer)
+                @addPlayer(newPlayer)
                 client.emit 'ship_create', newPlayer.getState()
-                #console.log  newPlayer.getState()
         
             client.on 'ship_read', (data) =>
-                client.emit 'ship_read', @players[data.id]
+                client.emit 'ship_read', @players[data.id].getState()
 
             client.on 'ship_update', (data) =>
                 @updatePlayer(data)
                 @broadcastPlayerUpdate(data)
-                client.emit 'ship_update', @players[data.id]
+                # TODO: send an ack
+                #client.emit 'ship_update', @players[data.id].getState()
 
             client.on 'ship_delete', (data) =>
                 @removePlayer(data.id)
-                client.emit 'ship_delete', @players[data.id]
+                #client.emit 'ship_delete', @players[data.id].getState()
 
             # Bullet CRUD
             client.on 'bullet_create', (data) =>
@@ -79,54 +79,56 @@ module.exports = class GameServer
             # Enemy CRUD
             client.on 'enemy_create', (data) =>
                 newPlayer = new Enemy(client,this, data)
-                @onPlayerConnect(newPlayer)
+                @addPlayer(newPlayer)
                 client.emit 'enemy_create', newPlayer.getState()
         
             client.on 'enemy_read', (data) =>
-                client.emit 'enemy_read', @players[data.id]
+                client.emit 'enemy_read', _.map(@players, (v, k) -> return v.getState())
 
             client.on 'enemy_update', (data) =>
                 @updatePlayer(data)
                 @broadcastPlayerUpdate(data)
-                client.emit 'enemy_update', @players[data.id]
+                client.emit 'enemy_update', _.map(@players, (v, k) -> return v.getState())
 
             client.on 'enemy_delete', (data) =>
                 @removePlayer(data.id)
-                client.emit 'enemy_delete', @players[data.id]
+                client.emit 'enemy_delete', _.map(@players, (v, k) -> return v.getState())
 
         @initWorld()
 
     initWorld: () =>
         @scene = new Physijs.Scene
         @scene.setGravity(new THREE.Vector3(0, 0, 0))
+
+        # load map mesh
+        #@jsonLoader = new THREE.JSONLoader()
+        #@jsonLoader.load '/public/models/city/city.js' , (a) =>
+            #@map = new Pyhsijs.a
+
+
         setInterval(@update,1000)
 
     update: () =>
         @scene.simulate()
         @updateGroups()
-
-    generateMap: () =>
-        
-
-    onPlayerConnect: (player) ->
-        @addPlayer(player)
-        
+                
     addEntity: (entity) =>
         @entities[entity.id] = entity
     
     addPlayer: (player) =>
         if player?
             @scene.add player.boundingBox
-            @players[player.id] = player.getState()
+            @players[player.id] = player
 
-    updatePlayer: (player) =>
-        @players[player.id] = player
+    updatePlayer: (playerData) =>
+        @players[playerData.id].pos = playerData.pos
+        @players[playerData.id].dir = playerData.dir
 
     removePlayer: (id) =>
         delete @players[id]
 
-    broadcastPlayerUpdate: (data) =>
-        @io.sockets.in('room').emit('players_update',  @players[data.id])
+    broadcastPlayerUpdate: (player) =>
+        @io.sockets.in('room').emit('ship_update',  @players[player.id].getState())
 
     broadcastPlayerDelete: (id) =>
         @io.sockets.in('room').emit('players_delete', id)
@@ -137,8 +139,8 @@ module.exports = class GameServer
             bullet.boundingBox.setLinearVelocity({z: -10, y: 0, x: 0 })
             @bullets[bullet.id] = bullet
 
-    updateBullet: (bullet) =>
-        @bullets[bullet.id] = bullet
+    updateBullet: (bulletData) =>
+        @bullets[bulletData.id] = bullet.pos
 
     removeBullets: (id) =>
         for k,v of @bullets
@@ -152,13 +154,12 @@ module.exports = class GameServer
         @io.sockets.in('room').emit('bullets_delete', id)
 
     updateGroups: () =>
-        t = 200
-        for k,v of @players
+        t = 300
+        #for k,v of @players
             # TODO: Check player position bounds
-            @players[k].boundingBox.position.copy(@players.pos)
-            @players[k].boundingBox.__dirtyPosition = true
-            @players[k].boundingBox.rotation.copy(@players.dir)
-            @players[k].boundingBox.__dirtyRotation = true
-            #console.log @bullets[k].pos
-        @io.sockets.in('room').emit('players_update', @players)
-        @io.sockets.in('room').emit('bullets_update',  _.map(@bullets, (v, k) -> return v.getState()))
+            #@players[k].boundingBox.position.copy(@players[k].pos)
+            #@players[k].boundingBox.__dirtyPosition = true
+            #@players[k].boundingBox.rotation.copy(@players[k].dir)
+            #@players[k].boundingBox.__dirtyRotation = true
+        @io.sockets.in('room').emit('players_update', _.map(@players, (v, k) -> return v.getState()))
+        @io.sockets.in('room').emit('bullets_update', _.map(@bullets, (v, k) -> return v.getState()))

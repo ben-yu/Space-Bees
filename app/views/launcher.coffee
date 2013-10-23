@@ -2,6 +2,7 @@ Game = require 'models/game'
 GameView = require 'views/game'
 Loader = require 'lib/loader'
 FacebookView = require 'views/facebook'
+AuthModel = require 'models/auth'
 
 module.exports = class LauncherView extends Backbone.View
     className: 'launcher'
@@ -11,11 +12,11 @@ module.exports = class LauncherView extends Backbone.View
     el: 'div#launcher'
 
     events:
-        "click .button-huge" : "startGame"
+        "click .btn-success" : "startGame"
         "click .fb-signup" : "login"
 
     initialize: =>
-        @facebook = new FacebookView 
+        @facebook = new FacebookView
             appId: '154939177928888'
             scope: 'email'
         @facebook.loadSDK()
@@ -24,12 +25,17 @@ module.exports = class LauncherView extends Backbone.View
 
     render: ->
         this.$el.html @template
+        $ () ->
+            BV = new $.BigVideo()
+            BV.init()
+            BV.show('backgroundMovie.mp4',{ambient:true})
 
     login: (event) ->
         @facebook.triggerLogin "loginbutton"
 
     startGame: (event) ->
         this.$el.hide()
+        $('#big-video-vid').remove()
         
         SpaceBees.Views.Game = new GameView()
 
@@ -58,6 +64,7 @@ module.exports = class LauncherView extends Backbone.View
                 'scrapers1.diffuse' : 'textures/scrapers1/diffuse.jpg'
                 'scrapers2.diffuse' : 'textures/scrapers2/diffuse.jpg'
                 'chipmetal' : 'textures/terrain/chipmetal/texturemap.jpg'
+                'missile_particle' : 'textures/missiles/particle.png'
             },
             texturesCube: {
                 'interstellar' : "textures/skybox/interstellar/%1.jpg"
@@ -68,6 +75,7 @@ module.exports = class LauncherView extends Backbone.View
                 'scrapers1' : 'models/scrapers1.js'
                 'scrapers2' : 'models/scrapers2.js'
                 'bee' : 'models/bee.js'
+                'city': 'models/city/city.js'
             },
             analysers : {},
             images: {

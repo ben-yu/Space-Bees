@@ -10,6 +10,8 @@ exports.config =
                     'vendor/scripts/underscore.deferred.js'
                     'vendor/scripts/console-polyfill.js'
                     'vendor/scripts/jquery.js'
+                    'vendor/scripts/jquery-ui.js'
+                    'vendor/scripts/bootstrap.js'
                     'vendor/scripts/backbone.js'
                     'vendor/scripts/three.js'
                     'vendor/scripts/howler.js'
@@ -29,6 +31,8 @@ exports.config =
                     'vendor/scripts/postprocessing/SavePass.js'
                     'vendor/scripts/postprocessing/ShaderPass.js'
                     'vendor/scripts/Sparks.js'
+                    'vendor/scripts/video.js'
+                    'vendor/scripts/bigvideo.js'
                 ]
 
         stylesheets:
@@ -36,6 +40,8 @@ exports.config =
                 'stylesheets/app.css'
             order:
                 before: [
+                    'vendor/styles/bootstrap.css'
+                    'vendor/styles/font-awesome.css'
                     'vendor/styles/normalize.css'
                     'vendor/styles/typeplate-unminified.css'
                 ]

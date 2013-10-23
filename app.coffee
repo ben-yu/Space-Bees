@@ -7,34 +7,44 @@ app.use(express.static __dirname+'/public')
 
 GameServer = require './server/gameserver'
 
-passport = require 'passport'
-FacebookStrategy = require('passport-facebook').Strategy
-
-strat = new FacebookStrategy {
-    clientID:'154939177928888',
-    clientSecret:'a9d9813dd3c4df68f8dbcdb38245111d',
-    callbackURL: "http://localhost:3333/auth/facebook/callback"},(accessToken, refreshToken, profile, done) ->
-        # do stuff with profile
-        console.log 'find user'
-        done(null,null)
-
-passport.use strat
+mongoose = require 'mongoose'
 
 exports.startServer = (port, path, callback) -> 
     p = process.env.PORT || port
+
+    # root
     app.get '/', (req, res) -> 
         res.sendfile './public/index.html'
 
-    app.get '/auth/facebook', passport.authenticate('facebook')
+    # Mongo
+    mongoose.connect('mongodb://localhost/spacebees')
 
-    app.get '/auth/facebook/callback', passport.authenticate('facebook', { successRedirect: '/', failureRedirect: '/login' })
+    Account = new mongoose.Schema
+        type: String
+        uid : String
+        username : String
+        password : String
+
+    User = new mongoose.Schema
+        firstName : String,
+        lastName : String,
+        email : String,
+
+        accounts : [Account]
+
+    app.post '/auth' , (req, res) ->
+        console.log req.params
+        console.log req.query
+        console.log JSON.stringify(req.body)
+        res.send 'Success'
 
     server = app.listen p
 
+    # Sockets
     io = require('socket.io').listen server
-
     io.set('log level', 1)
 
+    # Start Game Server
     gs = new GameServer(io)
     #gs.run()
     

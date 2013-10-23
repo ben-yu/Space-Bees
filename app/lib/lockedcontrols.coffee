@@ -10,7 +10,7 @@ module.exports = class LockedControls
     normalAccel: 100.0
     boosterAccel: 200.0
     boostTimer: 0
-    autoForward: true
+    autoForward: false
     rollSpeed: 0.5
     barrelRollSpeed: 5.0
     mouseStatus: 0
@@ -20,12 +20,13 @@ module.exports = class LockedControls
     rollAngle: 0
     aimMode: 0
     moveState:
+        accelerating: 0
         up: 0
         down: 0
         left: 0
         right: 0
-        forward: 0
-        back: 0
+        forward: 1
+        backward: 0
         pitchUp: 0
         pitchDown: 0
         yawLeft: 0
@@ -114,7 +115,7 @@ module.exports = class LockedControls
 
             when 16 then @aimMode = 1 # shift
 
-            when 87 then #w
+            when 87 then @moveState.accelerating = 1 #w
             when 65 then @moveState.left = 1  # a
             when 83 then @moveState.back = 1  # s
             when 68 then @moveState.right = 1 # d
@@ -135,7 +136,7 @@ module.exports = class LockedControls
 
             when 16 then @aimMode = 0
 
-            when 87 then # w
+            when 87 then @moveState.accelerating = 0 # w
             when 65      # a
                 @moveState.left = 0
                 if @prevKey is 65 and not @moveState.rollLeft
@@ -163,15 +164,14 @@ module.exports = class LockedControls
         if @enabled is false
             return
 
-        if @speed >= @minNormalSpeed
-            if @moveState.back
-                @speed -= delta * @accel
-                if @speed < @minNormalSpeed
-                    @speed = @minNormalSpeed
-            else if @speed < @maxSpeed
+        if @moveState.accelerating
+            if @speed < @maxSpeed
                 @speed += delta * @accel
-                if @speed > @maxSpeed
-                    @speed = @maxSpeed
+                @speed = Math.floor(@speed)
+        else
+            if @speed >= 0
+                @speed -= delta * @accel
+                @speed = Math.ceil(@speed)
 
         moveMult = delta * @speed
         rotMult = delta * @rollSpeed

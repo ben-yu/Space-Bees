@@ -8,5 +8,8 @@ module.exports = class Entity
     setPosition: (pos) =>
         @pos = pos
 
+    setRotation: (rot) =>
+    	@rot = rot
+
     getState: =>
         return {'id':@id,'type':@type,'pos':@pos,'dir':@dir}

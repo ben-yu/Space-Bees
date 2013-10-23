@@ -9,8 +9,6 @@ LockedControls = require 'lib/lockedcontrols'
 ChaseCamera = require 'lib/chasecamera'
 
 module.exports = class Game extends Backbone.Model
-    tickrate: 300
-
     initialize: ->
 
     start: (session_id) =>
@@ -105,12 +103,14 @@ module.exports = class Game extends Backbone.Model
 
         #@generateTerrain()
 
+        city = new THREE.Mesh(SpaceBees.Loader.get('geometries','city'),new THREE.MeshNormalMaterial())
+        city.scale.set(15000.0,15000.0,15000.0)
+        city.position.y = -250
+        @scene.add city
+
         # Players
-
-        @players = new ActivePlayers([],{parentScene:@scene, selfId:session_id})
+        @players = new ActivePlayers([],{parentScene:@scene, selfId:@session_id})
         @players.fetch()
-
-        @enemies = new Backbone.Collection()
 
         # Player's ship
         #@ship = new Ship({id:session_id})
@@ -124,7 +124,7 @@ module.exports = class Game extends Backbone.Model
         @scene.add @camera
 
         # Projectiles
-        @bullets = new Bullets([],{parentScene:@scene, selfId:session_id})
+        @bullets = new Bullets([],{parentScene:@scene, selfId:@session_id})
         @bullets.fetch()
         @missiles = new Backbone.Collection()
 
@@ -453,6 +453,9 @@ module.exports = class Game extends Backbone.Model
                 @missiles.add(missile)
                 @scene.add missile.mesh
 
+    tickrate: 300
+    lastUpdate: 0
+
     gameloop: =>
 
         # use requestAnimationFrame to loop animation
@@ -478,9 +481,12 @@ module.exports = class Game extends Backbone.Model
             if @controls.aimMode
                 @lockOnTarget(@controls.cursor_x,@controls.cursor_y)
 
-            # Active Players
-            @players.fetch()
-            @bullets.fetch({remove: false})
+
+            @lastUpdate += delta
+            # Rate limit updates
+            if @lastUpdate > @tickrate
+                @players.fetch() # Active Players
+                #@bullets.fetch({remove: false})
 
             # Projectiles
             if @controls.fireStandard

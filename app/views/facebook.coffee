@@ -1,251 +1,261 @@
 utils = require 'lib/utils'
+AuthModel = require 'models/auth'
 
 class Facebook extends Backbone.View
   
-  # Login status at Facebook
-  status: null
+    # Login status at Facebook
+    status: null
 
-  # The current session API access token
-  accessToken: null
+    # The current session API access token
+    accessToken: null
 
-  constructor: (@options) ->
-    console.debug 'Facebook#constructor'
+    model: new AuthModel()
 
-    # Mixin a Deferred
-    _(this).extend _.Deferred()
-    
-    utils.deferMethods
-      deferred: this
-      methods: [
-        'parse', 'subscribe', 'postToGraph', 'getAccumulatedInfo', 'getInfo', 'getLoginStatus'
-      ]
-      onDeferral: @loadSDK
+    constructor: (@options) ->
+        console.debug 'Facebook#constructor'
 
-    # Bundle comment count calls into one request
-    utils.wrapAccumulators this, ['getAccumulatedInfo']
+        # Mixin a Deferred
+        _(this).extend _.Deferred()
+        
+        utils.deferMethods
+            deferred: this
+            methods: [
+                'parse', 'subscribe', 'postToGraph', 'getAccumulatedInfo', 'getInfo', 'getLoginStatus'
+            ]
+            onDeferral: @loadSDK
 
-    # @subscribeEvent 'loginAbort', @loginAbort
-    # @subscribeEvent 'logout', @logout
+        # Bundle comment count calls into one request
+        utils.wrapAccumulators this, ['getAccumulatedInfo']
 
-  dispose: ->
-    # TODO unsubscribe
+        # @subscribeEvent 'loginAbort', @loginAbort
+        # @subscribeEvent 'logout', @logout
 
-  # Load the JavaScript SDK asynchronously
-  loadSDK: ->
-    console.debug 'Facebook#loadSDK'
+    dispose: ->
+        # TODO unsubscribe
 
-    return if @state() is 'resolved' or @loading
-    @loading = true
+    # Load the JavaScript SDK asynchronously
+    loadSDK: ->
+        console.debug 'Facebook#loadSDK'
 
-    # Register load handler
-    window.fbAsyncInit = @sdkLoadHandler
+        return if @state() is 'resolved' or @loading
+        @loading = true
 
-    # No success callback, there’s fbAsyncInit
-    utils.loadLib 'http://connect.facebook.net/en_US/all.js', null, @reject
+        # Register load handler
+        window.fbAsyncInit = @sdkLoadHandler
 
-  # The main callback for the Facebook SDK
-  sdkLoadHandler: =>
-    console.debug 'Facebook#sdkLoadHandler'
+        # No success callback, there’s fbAsyncInit
+        utils.loadLib 'http://connect.facebook.net/en_US/all.js', null, @reject
 
-    @loading = false
-    try
-      # IE 8 throws an exception
-      delete window.fbAsyncInit
-    catch error
-      window.fbAsyncInit = undefined
+    # The main callback for the Facebook SDK
+    sdkLoadHandler: =>
+        console.debug 'Facebook#sdkLoadHandler'
 
-    FB.init
-      appId:  @options.appId
-      status: true
-      cookie: true
-      xfbml:  false
+        @loading = false
+        try
+            # IE 8 throws an exception
+            delete window.fbAsyncInit
+        catch error
+            window.fbAsyncInit = undefined
 
-    @registerHandlers()
+        FB.init
+            appId:  @options.appId
+            status: true
+            cookie: true
+            xfbml:  false
 
-    # Resolve the Deferred
-    console.debug 'Facebook#sdkLoadHandler: resolve'
-    @resolve()
+        @registerHandlers()
 
-  # Register handlers for several events
-  registerHandlers: ->
-    # Listen to logout on the Facebook
-    @subscribe 'auth.logout', @facebookLogout
-    # Listen to likes
-    # @subscribe 'edge.create', @processLike
-    # Listen to comments
-    # @subscribe 'comment.create', @processComment
+        # Resolve the Deferred
+        console.debug 'Facebook#sdkLoadHandler: resolve'
+        @resolve()
 
-  # Check whether the Facebook SDK has been loaded
-  isLoaded: ->
-    Boolean window.FB and FB.login
+    # Register handlers for several events
+    registerHandlers: ->
+        # Listen to logout on the Facebook
+        @subscribe 'auth.logout', @facebookLogout
+        # Listen to likes
+        # @subscribe 'edge.create', @processLike
+        # Listen to comments
+        # @subscribe 'comment.create', @processComment
 
-  # Save the current login status and the access token
-  # (if logged in and connected with app)
-  saveAuthResponse: (response) =>
-    console.debug 'Facebook#saveAuthResponse', response
-    @status = response.status
-    authResponse = response.authResponse
-    if authResponse
-      @accessToken = authResponse.accessToken
-    else
-      @accessToken = null
+    # Check whether the Facebook SDK has been loaded
+    isLoaded: ->
+        Boolean window.FB and FB.login
 
-  # Get the Facebook login status, delegates to FB.getLoginStatus
-  #
-  # This actually determines a) whether the user is logged in at Facebook
-  # and b) whether the user has authorized the app
-  getLoginStatus: (callback = @loginStatusHandler, force = false) =>
-    console.debug 'Facebook#getLoginStatus', @state()
-    FB.getLoginStatus callback, force
+    # Save the current login status and the access token
+    # (if logged in and connected with app)
+    saveAuthResponse: (response) =>
+        console.debug 'Facebook#saveAuthResponse', response
+        @status = response.status
+        authResponse = response.authResponse
+        if authResponse
+            @accessToken = authResponse.accessToken
+        else
+            @accessToken = null
 
-  # Callback for the initial FB.getLoginStatus call
-  loginStatusHandler: (response) =>
-    console.debug 'Facebook#loginStatusHandler', response
-    @saveAuthResponse response
-    authResponse = response.authResponse
-    if authResponse
-      @publishSession authResponse
-      @getUserData()
-    else
-      @trigger 'logout'
+    # Get the Facebook login status, delegates to FB.getLoginStatus
+    #
+    # This actually determines a) whether the user is logged in at Facebook
+    # and b) whether the user has authorized the app
+    getLoginStatus: (callback = @loginStatusHandler, force = false) =>
+        console.debug 'Facebook#getLoginStatus', @state()
+        FB.getLoginStatus callback, force
 
-  # Open the Facebook login popup
-  # loginContext: object with context information where the
-  # user triggered the login
-  #   Attributes:
-  #   description - string
-  #   model - optional model e.g. a topic the user wants to subscribe to
-  triggerLogin: (loginContext) =>
-    console.debug 'Facebook#triggerLogin', loginContext
-    FB.login _(@loginHandler).bind(this, loginContext), {scope: @options.scope}
+    # Callback for the initial FB.getLoginStatus call
+    loginStatusHandler: (response) =>
+        console.debug 'Facebook#loginStatusHandler', response
+        @saveAuthResponse response
+        authResponse = response.authResponse
+        if authResponse
+            @publishSession authResponse
+            @getUserData()
+        else
+            @trigger 'logout'
 
-  # Callback for FB.login
-  loginHandler: (loginContext, response) =>
-    console.debug 'Facebook#loginHandler', loginContext, response
+    # Open the Facebook login popup
+    # loginContext: object with context information where the
+    # user triggered the login
+    #   Attributes:
+    #   description - string
+    #   model - optional model e.g. a topic the user wants to subscribe to
+    triggerLogin: (loginContext) =>
+        console.debug 'Facebook#triggerLogin', loginContext
+        FB.login _(@loginHandler).bind(this, loginContext), {scope: @options.scope}
 
-    @saveAuthResponse response
-    authResponse = response.authResponse
+    # Callback for FB.login
+    loginHandler: (loginContext, response) =>
+        console.debug 'Facebook#loginHandler', loginContext, response
 
-    if authResponse
-      @trigger 'loginSuccessful', {provider: this}
-      @publishSession authResponse
-      @getUserData()
+        @saveAuthResponse response
+        authResponse = response.authResponse
 
-    else
-      @trigger 'loginAbort', {provider: this}
+        if authResponse
+            @trigger 'loginSuccessful', {provider: this}
+            @publishSession authResponse
+            @getUserData()
 
-      # Get the login status again (forced) because the user might be
-      # logged in anyway. This might happen when the user grants access
-      # to the app but closes the second page of the auth dialog which
-      # asks for Extended Permissions.
-      @getLoginStatus @publishAbortionResult, true
+        else
+            @trigger 'loginAbort', {provider: this}
 
-  # Publish the Facebook session
-  publishSession: (authResponse) ->
-    console.debug 'Facebook#publishSession', authResponse
-    @trigger 'serviceProviderSession',
-      provider: this
-      userId: authResponse.userID
-      accessToken: authResponse.accessToken
+            # Get the login status again (forced) because the user might be
+            # logged in anyway. This might happen when the user grants access
+            # to the app but closes the second page of the auth dialog which
+            # asks for Extended Permissions.
+            @getLoginStatus @publishAbortionResult, true
 
-  # Check login status after abort and publish success or failure
-  publishAbortionResult: (response) =>
-    @saveAuthResponse response
-    authResponse = response.authResponse
+    # Publish the Facebook session
+    publishSession: (authResponse) ->
+        console.debug 'Facebook#publishSession', authResponse
+        @trigger 'serviceProviderSession',
+            provider: this
+            userId: authResponse.userID
+            accessToken: authResponse.accessToken
 
-    if authResponse
-      @trigger 'loginSuccessful', {provider: this}
-      @trigger 'loginSuccessfulThoughAborted', {
-        provider: this, loginContext
-      }
+    # Check login status after abort and publish success or failure
+    publishAbortionResult: (response) =>
+        @saveAuthResponse response
+        authResponse = response.authResponse
 
-      @publishSession authResponse
+        if authResponse
+            @trigger 'loginSuccessful', {provider: this}
+            @trigger 'loginSuccessfulThoughAborted', {
+                provider: this, loginContext
+            }
 
-    else
-      # Login failed ultimately
-      @trigger 'loginFail', {provider: this}
+            @publishSession authResponse
 
-  # Handler for the FB auth.logout event
-  facebookLogout: (response) =>
-    console.debug 'Facebook#facebookLogout', response
+        else
+            # Login failed ultimately
+            @trigger 'loginFail', {provider: this}
 
-    # The SDK fires bogus auth.logout events even when the user is logged in.
-    # So just overwrite the current status.
-    @saveAuthResponse response
+    # Handler for the FB auth.logout event
+    facebookLogout: (response) =>
+        console.debug 'Facebook#facebookLogout', response
 
-  # Handler for the global logout event
-  logout: ->
-    # Clear the status properties
-    @status = @accessToken = null
+        # The SDK fires bogus auth.logout events even when the user is logged in.
+        # So just overwrite the current status.
+        @saveAuthResponse response
 
-  # Handlers for like and comment events
-  # ------------------------------------
-  processLike: (url) =>
-    console.debug 'Facebook#processLike', url
-    @trigger 'facebookLike', url
+    # Handler for the global logout event
+    logout: ->
+        # Clear the status properties
+        @status = @accessToken = null
 
-  processComment: (comment) =>
-    console.debug 'Facebook#processComment', comment, comment.href
-    @trigger 'facebookComment', comment.href
+    # Handlers for like and comment events
+    # ------------------------------------
+    processLike: (url) =>
+        console.debug 'Facebook#processLike', url
+        @trigger 'facebookLike', url
 
-  #
-  # Parsing of Facebook social plugins
-  # ----------------------------------
+    processComment: (comment) =>
+        console.debug 'Facebook#processComment', comment, comment.href
+        @trigger 'facebookComment', comment.href
 
-  parse: (el) ->
-    FB.XFBML.parse(el)
+    #
+    # Parsing of Facebook social plugins
+    # ----------------------------------
 
-  #
-  # Helper for subscribing to SDK events
-  # ------------------------------------
+    parse: (el) ->
+        FB.XFBML.parse(el)
 
-  subscribe: (eventType, handler) ->
-    FB.Event.subscribe eventType, handler
+    #
+    # Helper for subscribing to SDK events
+    # ------------------------------------
 
-  unsubscribe: (eventType, handler) ->
-    FB.Event.unsubscribe eventType, handler
+    subscribe: (eventType, handler) ->
+        FB.Event.subscribe eventType, handler
 
-  #
-  # Graph Querying
-  # --------------
+    unsubscribe: (eventType, handler) ->
+        FB.Event.unsubscribe eventType, handler
 
-  # Deferred wrapper for posting to the open graph
-  postToGraph: (ogResource, data, callback) ->
-    FB.api ogResource, 'post', data, (response) ->
-      console.debug 'Facebook#postToGraph callback', response
-      callback response if callback
+    #
+    # Graph Querying
+    # --------------
 
-  # Post a message to the user’s stream
-  postToStream: (data, callback) ->
-    console.debug 'Facebook.postToStream', data
-    @postToGraph '/me/feed', data, callback
+    # Deferred wrapper for posting to the open graph
+    postToGraph: (ogResource, data, callback) ->
+        FB.api ogResource, 'post', data, (response) ->
+            console.debug 'Facebook#postToGraph callback', response
+            callback response if callback
 
-  # Get the info for the given URLs
-  # Pass a string or an array of strings along with a callback function
-  getAccumulatedInfo: (urls, callback) ->
-    console.debug 'Facebook#getAccumulatedInfo', urls, callback
-    urls = [urls] if typeof urls == 'string'
-    # Reduce to a comma-separated, string to embed into the query string
-    urls = _(urls).reduce((memo, url) ->
-      memo += ',' if memo
-      memo += encodeURIComponent(url)
-    , '')
-    FB.api "?ids=#{urls}", callback
+    # Post a message to the user’s stream
+    postToStream: (data, callback) ->
+        console.debug 'Facebook.postToStream', data
+        @postToGraph '/me/feed', data, callback
 
-  # Get information for node in the FB graph
-  # `id` might be a FB node ID or a normal URL
-  getInfo: (id, callback) ->
-    FB.api id, callback
+    # Get the info for the given URLs
+    # Pass a string or an array of strings along with a callback function
+    getAccumulatedInfo: (urls, callback) ->
+        console.debug 'Facebook#getAccumulatedInfo', urls, callback
+        urls = [urls] if typeof urls == 'string'
+        # Reduce to a comma-separated, string to embed into the query string
+        urls = _(urls).reduce((memo, url) ->
+            memo += ',' if memo
+            memo += encodeURIComponent(url)
+        , '')
+        FB.api "?ids=#{urls}", callback
 
-  # Fetch additional user data from Facebook (name, gender etc.)
-  # ------------------------------------------------------------
+    # Get information for node in the FB graph
+    # `id` might be a FB node ID or a normal URL
+    getInfo: (id, callback) ->
+        FB.api id, callback
 
-  getUserData: ->
-    console.debug 'Facebook#getUserData'
-    @getInfo '/me', @processUserData
+    # Fetch additional user data from Facebook (name, gender etc.)
+    # ------------------------------------------------------------
 
-  processUserData: (response) =>
-    console.debug 'Facebook#processUserData', response
-    @trigger 'userData', response
+    getUserData: ->
+        console.debug 'Facebook#getUserData'
+        @getInfo '/me', @processUserData
+
+    processUserData: (response) =>
+        console.debug 'Facebook#processUserData', response
+        @model.save
+            'username' : response.name
+            'password' : ''
+            'firstName' : response.first_name
+            'lastName' : response.last_name
+            'uid' : response.id
+        console.log 'model saved'
+        @trigger 'userData', response
 
 module.exports = Facebook
