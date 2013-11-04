@@ -63,7 +63,7 @@ exports.config =
                     level: "ignore"
 
     server:
-        path: 'app.coffee'
+        path: 'server/app.coffee'
         port: 3333
         base: '/'
         run: yes

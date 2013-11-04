@@ -1,20 +1,20 @@
 console.log "app node file", process.cwd()
-
 express = require 'express'
-app = express()
 
-app.use(express.static __dirname+'/public')
-
-GameServer = require './server/gameserver'
-
+GameServer = require './gameserver'
 mongoose = require 'mongoose'
 
 exports.startServer = (port, path, callback) -> 
     p = process.env.PORT || port
+    
+    app = express()
+    path = require 'path'
+    app.use express.static(path.resolve(__dirname, '../public'))
+    app.use express.bodyParser()
 
     # root
     app.get '/', (req, res) -> 
-        res.sendfile './public/index.html'
+        res.sendfile(path.resolve(__dirname, '../public/index.html'))
 
     # Mongo
     mongoose.connect('mongodb://localhost/spacebees')
@@ -33,10 +33,16 @@ exports.startServer = (port, path, callback) ->
         accounts : [Account]
 
     app.post '/auth' , (req, res) ->
-        console.log req.params
-        console.log req.query
         console.log JSON.stringify(req.body)
-        res.send 'Success'
+        user = req.body
+        ###
+        db.collection 'users', (err, collection) ->
+            collection.insert user, {safe:true}, (err,response) ->
+                if err
+                    res.send 'Error: '
+                else
+                    res.send 'Success'
+        ###
 
     server = app.listen p
 

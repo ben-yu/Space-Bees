@@ -49,11 +49,11 @@ module.exports = class GameServer
                 @updatePlayer(data)
                 @broadcastPlayerUpdate(data)
                 # TODO: send an ack
-                #client.emit 'ship_update', @players[data.id].getState()
+                client.emit 'ship_update', @players[data.id].getState()
 
             client.on 'ship_delete', (data) =>
                 @removePlayer(data.id)
-                #client.emit 'ship_delete', @players[data.id].getState()
+                client.emit 'ship_delete', @players[data.id].getState()
 
             # Bullet CRUD
             client.on 'bullet_create', (data) =>
@@ -67,7 +67,7 @@ module.exports = class GameServer
             client.on 'bullet_update', (data) =>
                 @updateBullet(data)
                 @broadcastBulletUpdate(data)
-                client.emit 'bullet_update', @bullets[data.id].getState()
+                #client.emit 'bullet_update', @bullets[data.id].getState()
 
             client.on 'bullet_delete', (data) =>
                 @removeBullet(data.id)
@@ -125,6 +125,7 @@ module.exports = class GameServer
         @players[playerData.id].dir = playerData.dir
 
     removePlayer: (id) =>
+        @scene.remove(@players[id].boundingBox)
         delete @players[id]
 
     broadcastPlayerUpdate: (player) =>
@@ -145,6 +146,7 @@ module.exports = class GameServer
     removeBullets: (id) =>
         for k,v of @bullets
             if v.playerID is id
+                @scene.remove(@bullets[k].boundingBox)
                 delete @bullets[k]
 
     broadcastBulletUpdate: (data) =>

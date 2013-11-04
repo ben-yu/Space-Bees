@@ -51,6 +51,9 @@ module.exports = class LauncherView extends Backbone.View
                 window.socket.on 'client_id', (client_id) =>
                     SpaceBees.Models.Game.start(client_id)
                     progress.innerText = "Click to Play!"
+
+                #SpaceBees.Models.Game.start(0)
+                #progress.innerText = "Click to Play!"
             onError: (s) =>
                 console.log "Error on " + s
             onProgress: (p,t,n) =>

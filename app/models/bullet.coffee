@@ -9,7 +9,7 @@ module.exports = class BulletModel extends Backbone.Model
         @maxDist = @get("maxDist") or 10000
         @velocity = @get("velocity")
 
-        @mesh = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshNormalMaterial())
+        @mesh = new THREE.Mesh(new THREE.CylinderGeometry(1,1,20), new THREE.MeshNormalMaterial())
         @mesh.position = @position
         return
 

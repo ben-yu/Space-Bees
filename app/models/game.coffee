@@ -30,6 +30,7 @@ module.exports = class Game extends Backbone.Model
         blocker = document.getElementById 'blocker'
         instructions = document.getElementById 'instructions'
 
+        # Cursor Init
         cursorOverlay = document.getElementById('cursorOverlay')
         cursorOverlay.width = WIDTH
         cursorOverlay.height = HEIGHT
@@ -44,13 +45,13 @@ module.exports = class Game extends Backbone.Model
         VIEW_ANGLE = 45
         ASPECT = WIDTH / HEIGHT
         NEAR = 0.1
-        FAR = 100000
+        FAR = 2000000
 
         @camera = new THREE.PerspectiveCamera VIEW_ANGLE, ASPECT, NEAR, FAR
         @projector = new THREE.Projector()
 
         @scene = new THREE.Scene
-        @scene.fog = new THREE.Fog( 0xffffff, 3000, 10000 )
+        @scene.fog = new THREE.Fog( 0xffffff, 3000, 100000 )
         @scene.fog.color.setHSL( 0.51, 0.6, 0.6 )
 
         @pickingScene = new THREE.Scene
@@ -78,7 +79,7 @@ module.exports = class Game extends Backbone.Model
             side: THREE.BackSide
         })
 
-        skybox = new THREE.Mesh( new THREE.CubeGeometry(20000, 20000, 20000), skymaterial )
+        skybox = new THREE.Mesh( new THREE.CubeGeometry(200000, 200000, 200000), skymaterial )
         @scene.add skybox
 
         # Terrain Generation
@@ -94,29 +95,26 @@ module.exports = class Game extends Backbone.Model
         groundTexture.repeat.set( 25, 25 )
         groundTexture.anisotropy = 16
 
-        floor = new THREE.Mesh( new THREE.PlaneGeometry( 20000, 20000 ), groundMaterial )
+        floor = new THREE.Mesh( new THREE.PlaneGeometry( 200000, 200000 ), groundMaterial )
         floor.position.y = -250
         floor.rotation.x = - Math.PI / 2
         floor.receiveShadow = true
         @scene.add floor
         @objects.push floor
 
-        #@generateTerrain()
-
-        city = new THREE.Mesh(SpaceBees.Loader.get('geometries','city'),new THREE.MeshNormalMaterial())
-        city.scale.set(15000.0,15000.0,15000.0)
-        city.position.y = -250
-        @scene.add city
+        @generateTerrain()
 
         # Players
         @players = new ActivePlayers([],{parentScene:@scene, selfId:@session_id})
         @players.fetch()
 
         # Player's ship
-        #@ship = new Ship({id:session_id})
         @ship = new Ship()
 
         @controls = new LockedControls @ship.mesh
+
+        @ship.position = @controls.targetObject.position
+        @ship.rotationV = @controls.targetObject.rotation
 
         @chasecamera = new ChaseCamera @camera, @ship.mesh
 
@@ -168,7 +166,6 @@ module.exports = class Game extends Backbone.Model
         effectFXAA.uniforms[ 'resolution' ].value.set( 1 / WIDTH, 1 / HEIGHT )
 
         # tilt shift
-
         hblur = new THREE.ShaderPass( THREE.HorizontalTiltShiftShader )
         vblur = new THREE.ShaderPass( THREE.VerticalTiltShiftShader )
 
@@ -182,12 +179,10 @@ module.exports = class Game extends Backbone.Model
         effectVignette.uniforms[ "darkness" ].value = 1.25
 
         # Motion Blur
-
         @effectBlend.uniforms[ 'tDiffuse2' ].value = @effectSave.renderTarget
         @effectBlend.uniforms[ 'mixRatio' ].value = 0.65
 
         renderModel = new THREE.RenderPass( @scene, @camera )
-        #renderModel.clear = false
 
         effectVignette.renderToScreen = true
 
@@ -203,7 +198,6 @@ module.exports = class Game extends Backbone.Model
         @composer.addPass( effectVignette )
 
         # Pointer Lock - http://www.html5rocks.com/en/tutorials/pointerlock/intro/
-
         havePointerLock = 'pointerLockElement' of document or
             'mozPointerLockElement' of document or
             'webkitPointerLockElement' of document
@@ -287,6 +281,10 @@ module.exports = class Game extends Backbone.Model
 
         return
 
+    initPointerLock : () =>
+
+    initMap : () =>
+
     addPlayer: (player) =>
         @players.add(player)
         @scene.add(player.mesh)
@@ -354,57 +352,12 @@ module.exports = class Game extends Backbone.Model
 
     generateTerrain: =>
 
-        geometry = new THREE.CubeGeometry(1,1,1)
-
-        # move pivot
-        geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0.5,0))
-        geometry.faces.splice(3,1); # remove bottom face
-        geometry.faceVertexUvs[0][2][0].set( 0, 0 )
-        geometry.faceVertexUvs[0][2][1].set( 0, 0 )
-        geometry.faceVertexUvs[0][2][2].set( 0, 0 )
-        geometry.faceVertexUvs[0][2][3].set( 0, 0 )
-
-        buildingMesh = new THREE.Mesh(geometry)
-
-        # base colors for vertexColors. light is for vertices at the top, shaddow is for the ones at the bottom
-        light = new THREE.Color( 0xffffff )
-        shadow = new THREE.Color( 0x303050 )
-
-        cityGeometry = new THREE.Geometry()
-
-        for i in [0...20000]
-            # put a random position
-            buildingMesh.position.x   = Math.floor( Math.random() * 200 - 100 ) * 10
-            buildingMesh.position.z   = Math.floor( Math.random() * 200 - 100 ) * 10
-            # put a random rotation
-            buildingMesh.rotation.y   = Math.random()*Math.PI*2
-            # put a random scale
-            buildingMesh.scale.x  = Math.random() * Math.random() * Math.random() * Math.random() * 50 + 10
-            buildingMesh.scale.y  = (Math.random() * Math.random() * Math.random() * buildingMesh.scale.x) * 8 + 8
-            buildingMesh.scale.z  = buildingMesh.scale.x
-
-            # establish the base color for the buildingMesh
-            value   = 1 - Math.random() * Math.random()
-            baseColor   = new THREE.Color().setRGB( value + Math.random() * 0.1, value, value + Math.random() * 0.1 )
-            # set topColor/bottom vertexColors as adjustement of baseColor
-            topColor    = baseColor.clone().multiply( light )
-            bottomColor = baseColor.clone().multiply( shadow )
-            # set .vertexColors for each face
-            geometry  = buildingMesh.geometry
-            jl = geometry.faces.length
-            for j in [0...jl]
-                if ( j == 2 )
-                    # set face.vertexColors on root face
-                    geometry.faces[j].vertexColors = [ baseColor, baseColor, baseColor, baseColor ]
-                else
-                    # set face.vertexColors on sides faces
-                    geometry.faces[j].vertexColors = [ topColor, bottomColor, bottomColor, topColor ]
-            # merge it with cityGeometry - very important for performance
-            THREE.GeometryUtils.merge(cityGeometry, buildingMesh)
-
         # generate the texture
         texture = new THREE.Texture(@generateTexture())
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+        texture.repeat.set(5, 5)
         texture.anisotropy = @renderer.getMaxAnisotropy()
+
         texture.needsUpdate = true
 
         # build the mesh
@@ -413,12 +366,31 @@ module.exports = class Game extends Backbone.Model
             vertexColors : THREE.VertexColors
         })
         
-        cityMesh = new THREE.Mesh(cityGeometry, material)
-
-        cityMesh.scale.set(15.0,15.0,15.0)
-        cityMesh.position.y = -250
-
-        @scene.add cityMesh
+        light = new THREE.Color( 0xffffff )
+        shadow    = new THREE.Color( 0x303050 )
+        
+        buildings = new THREE.Object3D()
+        for i in [0..3]
+            # set .vertexColors for each face
+            geometry = SpaceBees.Loader.get('geometries','city')
+            for j in [0..geometry.faces.length-1]
+                value    = 1 - Math.random() * Math.random()
+                baseColor   = new THREE.Color().setRGB( value + Math.random() * 0.1, value, value + Math.random() * 0.1 )
+                # set topColor/bottom vertexColors as adjustement of baseColor
+                topColor    = baseColor.clone().multiply( light )
+                bottomColor = baseColor.clone().multiply( shadow )
+                if j == 2
+                    # set face.vertexColors on root face
+                    geometry.faces[ j ].vertexColors = [ baseColor, baseColor, baseColor, baseColor ]
+                else
+                    # set face.vertexColors on sides faces
+                    geometry.faces[ j ].vertexColors = [ topColor, bottomColor, bottomColor, topColor ]
+            city = new THREE.Mesh(geometry, material)
+            city.scale.set(15000.0,15000.0,15000.0)
+            city.position.y = -250
+            city.rotation.y = (Math.PI / 2) * i
+            buildings.add(city)
+        @scene.add buildings
 
     fire: (type) =>
         switch type
@@ -453,7 +425,7 @@ module.exports = class Game extends Backbone.Model
                 @missiles.add(missile)
                 @scene.add missile.mesh
 
-    tickrate: 300
+    tickrate: 500
     lastUpdate: 0
 
     gameloop: =>
@@ -485,6 +457,7 @@ module.exports = class Game extends Backbone.Model
             @lastUpdate += delta
             # Rate limit updates
             if @lastUpdate > @tickrate
+                @lastUpdate = 0
                 @players.fetch() # Active Players
                 #@bullets.fetch({remove: false})
 
@@ -505,14 +478,17 @@ module.exports = class Game extends Backbone.Model
                     #@scene.remove(bullet.mesh)
                     #bullet.destroy()
 
-
+            ###
             @missiles.forEach (bullet) =>
                 bullet.update()
                 if (new THREE.Vector3().subVectors(bullet.startPos, bullet.position).length()> bullet.maxDist)
                     @scene.remove(bullet.mesh)
                     bullet.destroy()
-            
+            ###
+
             # Collision
+
+            ###
             @ray.ray.origin.copy @controls.getObject().position
             @ray.ray.origin.y -= 10
 
@@ -529,10 +505,9 @@ module.exports = class Game extends Backbone.Model
                             @controls.collision(true)
                             console.log 'collision!'
 
-            @ship.position.copy(@controls.targetObject.position)
-            forward = new THREE.Vector3(0,0,-1)
-            @ship.rotationV.copy(forward.transformDirection(@controls.targetObject.matrix))
+            ###
 
+            
             @ship.save(null,{
                 success: (model, response) =>
                     #console.log "success"
@@ -549,7 +524,7 @@ module.exports = class Game extends Backbone.Model
             @renderer.clear()
             @renderer.initWebGLObjects( @scene )
             @composer.render( 0.1 )
-            
+            ###
             # Render Cursor
             @context.save()
             @context.clearRect(0,0,window.innerWidth,window.innerHeight)
@@ -565,6 +540,6 @@ module.exports = class Game extends Backbone.Model
                 pos = @pickingObjects[0].position.clone()
                 @projector.projectVector(pos,@camera)
                 @context.drawImage(SpaceBees.Loader.get('images','target_lock'),pos.x * window.innerWidth/2 + window.innerWidth/2,pos.y  * -window.innerHeight/2 + window.innerHeight/2)
-
+            ###
         animate()
         return

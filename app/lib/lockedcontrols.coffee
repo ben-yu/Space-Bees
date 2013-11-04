@@ -4,21 +4,28 @@
 ###
 
 module.exports = class LockedControls
-    minNormalSpeed: 0.0
-    maxNormalSpeed: 500.0
+    minNormalSpeed: 1000.0
+    maxNormalSpeed: 1000.0
     maxBoosterSpeed: 1000.0
     normalAccel: 100.0
     boosterAccel: 200.0
     boostTimer: 0
-    autoForward: false
     rollSpeed: 0.5
     barrelRollSpeed: 5.0
+
     mouseStatus: 0
+    autoForward: true
+    dragToLook : false
     fireStandard: false
     fireMissile: false
     prevKey: null
     rollAngle: 0
     aimMode: 0
+
+    forwardDir : new THREE.Vector3(0,0,-1)
+    tmpQuaternion : new THREE.Quaternion()
+    moveVector : new THREE.Vector3(0,0,0)
+    rotationVector : new THREE.Vector3(0,0,0)
     moveState:
         accelerating: 0
         up: 0
@@ -53,8 +60,6 @@ module.exports = class LockedControls
         @accel = @normalAccel
 
         @velocity = new THREE.Vector3(0,0,0)
-        @movement = new THREE.Vector3(0,0,0)
-        @rotationVector = new THREE.Vector3(0,0,0)
 
         @WIDTH =  window.innerWidth
         @HEIGHT = window.innerHeight
@@ -127,7 +132,7 @@ module.exports = class LockedControls
                 @moveState.boost = true
 
         @updateMovementVector()
-        #@updateRotationVector()
+        @updateRotationVector()
 
 
     onKeyUp: (event) =>
@@ -163,15 +168,18 @@ module.exports = class LockedControls
     update: (delta) =>
         if @enabled is false
             return
+        
+        #if @moveState.accelerating
+        #    if @speed < @maxSpeed
+        #        @speed += delta * @accel
+        #        @speed = Math.floor(@speed)
+        #else
+        #   if @speed >= 0
+        #        @speed -= delta * @accel
+        #        @speed = Math.ceil(@speed)
+        @updateMovementVector()
+        @updateRotationVector()
 
-        if @moveState.accelerating
-            if @speed < @maxSpeed
-                @speed += delta * @accel
-                @speed = Math.floor(@speed)
-        else
-            if @speed >= 0
-                @speed -= delta * @accel
-                @speed = Math.ceil(@speed)
 
         moveMult = delta * @speed
         rotMult = delta * @rollSpeed
@@ -186,12 +194,9 @@ module.exports = class LockedControls
             @moveState.rollRight = 0
             @rollAngle = 0
         
-        @updateMovementVector()
-        @updateRotationVector()
-
-        @targetObject.translateX(@movement.x * moveMult)
-        @targetObject.translateY(@movement.y * moveMult)
-        @targetObject.translateZ(@movement.z * moveMult)
+        @targetObject.translateX(@moveVector.x * moveMult)
+        @targetObject.translateY(@moveVector.y * moveMult)
+        @targetObject.translateZ(@moveVector.z * moveMult)
 
         @tmpQuaternion.set(@rotationVector.x * rotMult, @rotationVector.y * rotMult, @rotationVector.z * barrelMult, 1 ).normalize()
         @targetObject.quaternion.multiply(@tmpQuaternion)
@@ -204,9 +209,9 @@ module.exports = class LockedControls
 
         forward = ( @moveState.forward or @autoForward ) ? 1 : 0
 
-        @movement.x = ( -@moveState.left + @moveState.right )
-        @movement.y = ( -@moveState.down + @moveState.up )
-        @movement.z =  -forward
+        @moveVector.x = ( -@moveState.left + @moveState.right )
+        @moveVector.y = ( -@moveState.down + @moveState.up )
+        @moveVector.z =  -1
 
     updateRotationVector: () =>
 
@@ -225,7 +230,7 @@ module.exports = class LockedControls
 
     collision: (boolean) =>
 
-        @movement.x = -@movement.x
-        @movement.y = -@movement.y
-        @movement.z = -@movement.z
+        @moveVector.x = -@moveVector.x
+        @moveVector.y = -@moveVector.y
+        @moveVector.z = -@moveVector.z
 
