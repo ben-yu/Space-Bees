@@ -8,6 +8,8 @@ module.exports = class Bullets extends Backbone.Collection
         @parentScene = options.parentScene
         @selfId = options.selfId
 
+        @flag = 1
+
         @connection.on 'bullets_delete', (data) =>
             if @get(data)
                 @parentScene.remove(@get(data).mesh)
@@ -21,6 +23,7 @@ module.exports = class Bullets extends Backbone.Collection
 
     sync: (method, model, options) =>
         options.data ?= {}
+        console.log method
         @connection.emit 'bullets_' + method, model.getState(), options.data, (err, data) ->
             if err
                 console.error "error in sync with #{method} #{@.name()} with server (#{err})"
@@ -28,19 +31,28 @@ module.exports = class Bullets extends Backbone.Collection
                 options.success data
 
         @connection.on 'bullets_' + method, (data) =>
+            #console.log @models
             switch method
                 when 'create' then
                 when 'read'
                     for v in data
+                        #if @flag
+                        #console.log v.id
+                        #@flag = 0
                         if @get(v.id)?
                             console.log v.pos
                             bullet = @get(v.id)
                             bullet.mesh.position.copy(v.pos)
                             bullet.mesh.rotation.copy(v.dir)
                         else if v.playerID isnt @selfId
-                            console.log v.playerID + ":" + @selfId
+                            m2 = new THREE.Matrix4()
+                            m2.makeRotationX(-Math.PI/2)
+                            m2.multiplyMatrices(m2,@controls.targetObject.matrix)
+                            m2.multiplyScalar(1/@ship.scaleFactor)
+                            newDir = new THREE.Vector3(0,1,0)
                             pos = new THREE.Vector3(v.pos.x,v.pos.y,v.pos.z)
                             bullet = new Bullet({playerID:v.playerID,shotID:v.shotID,position:pos})
+                            bullet.mesh.applyMatrix(m2)
                             @add(bullet)
                             @parentScene.add(bullet.mesh)
                 when 'update'
@@ -50,9 +62,14 @@ module.exports = class Bullets extends Backbone.Collection
                             bullet.mesh.position.copy(v.pos)
                             bullet.mesh.rotation.copy(v.dir)
                         else if v.playerID isnt @selfId
-                            console.log v.playerID + ":" + @selfId
+                            m2 = new THREE.Matrix4()
+                            m2.makeRotationX(-Math.PI/2)
+                            m2.multiplyMatrices(m2,@controls.targetObject.matrix)
+                            m2.multiplyScalar(1/@ship.scaleFactor)
+                            newDir = new THREE.Vector3(0,1,0)
                             pos = new THREE.Vector3(v.pos.x,v.pos.y,v.pos.z)
                             bullet = new Bullet({playerID:v.playerID,shotID:v.shotID,position:pos})
+                            bullet.mesh.applyMatrix(m2)
                             @add(bullet)
                             @parentScene.add(bullet.mesh)
                 when 'delete'

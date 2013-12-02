@@ -4,7 +4,7 @@
 ###
 
 module.exports = class LockedControls
-    minNormalSpeed: 1000.0
+    minNormalSpeed: 100.0
     maxNormalSpeed: 1000.0
     maxBoosterSpeed: 1000.0
     normalAccel: 100.0
@@ -14,7 +14,7 @@ module.exports = class LockedControls
     barrelRollSpeed: 5.0
 
     mouseStatus: 0
-    autoForward: true
+    autoForward: false
     dragToLook : false
     fireStandard: false
     fireMissile: false
@@ -32,7 +32,7 @@ module.exports = class LockedControls
         down: 0
         left: 0
         right: 0
-        forward: 1
+        forward: 0
         backward: 0
         pitchUp: 0
         pitchDown: 0

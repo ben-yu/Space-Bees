@@ -393,6 +393,11 @@ module.exports = class Game extends Backbone.Model
         @scene.add buildings
 
     fire: (type) =>
+        m2 = new THREE.Matrix4()
+        m2.makeRotationX(-Math.PI/2)
+        m2.multiplyMatrices(m2,@controls.targetObject.matrix)
+        m2.multiplyScalar(1/@ship.scaleFactor)
+        newDir = new THREE.Vector3(0,1,0)
         switch type
             when 'standard'
                 @ship.shotsFired += 1
@@ -400,17 +405,19 @@ module.exports = class Game extends Backbone.Model
                     session_id:@session_id,
                     shotID:@ship.shotsFired,
                     position:@ship.position.clone(),
-                    velocity:@ship.rotationV.clone()
+                    velocity:newDir.transformDirection(m2)
                 })
-                @bullets.add(bullet)
-                bullet.save(null,{
-                    success: (model, response) =>
-                        #console.log "success"
-                    error: (model, response) =>
-                        #console.log "error"
-                })
-                console.log @bullets.models
-                console.log @bullets.get(0)
+                bullet.connection.on 'bullet_create', (data) =>
+                    #console.log 'Game Create Callback ' + data.id + ' : ' + bullet.id
+                    if not bullet.id
+                        bullet.id = data.id
+                        @bullets.add(bullet)
+                        #console.log 'bullet added'
+                bullet.save()
+                
+
+                bullet.mesh.applyMatrix(m2)
+                @scene.add bullet.mesh
 
             when 'missile'
                 missile = new Missile({
@@ -454,12 +461,12 @@ module.exports = class Game extends Backbone.Model
                 @lockOnTarget(@controls.cursor_x,@controls.cursor_y)
 
 
-            @lastUpdate += delta
+            #@lastUpdate += delta
             # Rate limit updates
-            if @lastUpdate > @tickrate
-                @lastUpdate = 0
-                @players.fetch() # Active Players
-                #@bullets.fetch({remove: false})
+            #if @lastUpdate > @tickrate
+                #@lastUpdate = 0
+            @players.fetch() # Active Players
+            @bullets.fetch()
 
             # Projectiles
             if @controls.fireStandard
@@ -510,9 +517,9 @@ module.exports = class Game extends Backbone.Model
             
             @ship.save(null,{
                 success: (model, response) =>
-                    #console.log "success"
+                    #console.log "promise callback is broken"
                 error: (model, response) =>
-                    #console.log "error"
+                    #console.log "promise callback is broken"
             })
 
 
