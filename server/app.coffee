@@ -15,7 +15,7 @@ exports.startServer = (port, path, callback) ->
     # root
     app.get '/', (req, res) -> 
         res.sendfile(path.resolve(__dirname, '../public/index.html'))
-
+    ###    
     # Mongo
     mongoose.connect('mongodb://localhost/spacebees')
 
@@ -35,15 +35,13 @@ exports.startServer = (port, path, callback) ->
     app.post '/auth' , (req, res) ->
         console.log JSON.stringify(req.body)
         user = req.body
-        ###
         db.collection 'users', (err, collection) ->
             collection.insert user, {safe:true}, (err,response) ->
                 if err
                     res.send 'Error: '
                 else
                     res.send 'Success'
-        ###
-
+    ###
     server = app.listen p
 
     # Sockets
