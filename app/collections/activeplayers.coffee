@@ -44,9 +44,9 @@ module.exports = class ActivePlayers extends Backbone.Collection
                             ship = @get(v.id)
                             ship.mesh.position.copy(v.pos)
                             ship.mesh.rotation.copy(v.dir)
-                            console.log v.id
+                            #console.log v.id
                         else if v.id isnt @selfId
-                            console.log v.id
+                            #console.log v.id
                             pos = new THREE.Vector3(v.x,v.y,v.z)
                             ship = new Ship({id:v.id,position:pos})
                             @add(ship)
@@ -57,15 +57,15 @@ module.exports = class ActivePlayers extends Backbone.Collection
                             ship = @get(v.id)
                             ship.mesh.position.copy(v.pos)
                             ship.mesh.rotation.copy(v.dir)
-                            console.log data
+                            #console.log data
                         else if v.id isnt @selfId
-                            console.log v.id
+                            #console.log v.id
                             pos = new THREE.Vector3(v.x,v.y,v.z)
                             ship = new Ship({id:v.id,position:pos})
                             @add(ship)
                             @parentScene.add(ship.mesh)
                 when 'delete'
-                    console.log 'delete' + data
+                    #console.log 'delete' + data
                     if @get(data)
                         @parentScene.remove(@get(data).mesh)
                         @remove(@get(data))

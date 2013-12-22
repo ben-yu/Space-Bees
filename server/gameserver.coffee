@@ -6,7 +6,7 @@ Player = require('./player')
 Bullet = require('./bullet')
 
 module.exports = class GameServer
-    updatesPerSecond: 5
+    updatesPerSecond: 10
 
     constructor: (@io) ->
         @entities = {}
@@ -81,7 +81,7 @@ module.exports = class GameServer
         #@jsonLoader = new THREE.JSONLoader()
         #@jsonLoader.load '/public/models/city/city.js' , (a) =>
             #@map = new Pyhsijs.a
-        setInterval(@update,300)
+        setInterval(@update,10)
                 
     addEntity: (entity) =>
         @entities[entity.id] = entity
@@ -96,8 +96,9 @@ module.exports = class GameServer
         @players[playerData.id].dir = playerData.dir
 
     removePlayer: (id) =>
-        @scene.remove(@players[id].boundingBox)
-        delete @players[id]
+        if @players[id] != null
+            @scene.remove(@players[id].boundingBox)
+            delete @players[id]
 
     broadcastPlayerUpdate: (player) =>
         @io.sockets.in('room').emit('ship_update',  @players[player.id].getState())
@@ -112,7 +113,6 @@ module.exports = class GameServer
             #bullet.boundingBox.setLinearVelocity({z: -10, y: 0, x: 0 })
 
     updateBullet: (bulletData) =>
-        console.log bulletData.id
         @bullets[bulletData.id].pos = bulletData.pos
         @players[bulletData.id].dir = bulletData.dir
 
@@ -129,7 +129,7 @@ module.exports = class GameServer
         @io.sockets.in('room').emit('bullets_delete', id)
 
     update: () =>
-        t = 300
+        t = 100
         #console.log 'update'
         for k,v of @bullets
             v.update()

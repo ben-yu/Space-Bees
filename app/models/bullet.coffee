@@ -14,6 +14,8 @@ module.exports = class Bullet extends Backbone.Model
 
         @mesh = new THREE.Mesh(new THREE.CylinderGeometry(1,1,20), new THREE.MeshNormalMaterial())
         @mesh.position = @position
+        #@mesh.rotation.copy(@velocity)
+        #console.log(@velocity)
         return
 
     update : =>
@@ -25,7 +27,6 @@ module.exports = class Bullet extends Backbone.Model
 
     sync : (method, model, options) =>
         options.data ?= {}
-        #console.log 'bullet ' + method
         @connection.emit 'bullet_' + method, model.getState(), options.data, (err, data) ->
             if err
                 console.error "error in sync with #{method} #{@.name()} with server (#{err})"
@@ -33,7 +34,6 @@ module.exports = class Bullet extends Backbone.Model
                 options.success data
 
         @connection.on 'bullet_' + method, (data) =>
-            console.log method + ' Callback ' + data.id
             if model.id is data.id
                 model.position.copy(data.pos)
             #model.mesh.rotation.copy(data.dir)

@@ -394,10 +394,10 @@ module.exports = class Game extends Backbone.Model
 
     fire: (type) =>
         m2 = new THREE.Matrix4()
-        m2.makeRotationX(-Math.PI/2)
+        #m2.makeRotationY(Math.PI)
         m2.multiplyMatrices(m2,@controls.targetObject.matrix)
         m2.multiplyScalar(1/@ship.scaleFactor)
-        newDir = new THREE.Vector3(0,1,0)
+        newDir = new THREE.Vector3(0,0,-1)
         switch type
             when 'standard'
                 @ship.shotsFired += 1
@@ -408,15 +408,12 @@ module.exports = class Game extends Backbone.Model
                     velocity:newDir.transformDirection(m2)
                 })
                 bullet.connection.on 'bullet_create', (data) =>
-                    #console.log 'Game Create Callback ' + data.id + ' : ' + bullet.id
                     if not bullet.id
                         bullet.id = data.id
                         @bullets.add(bullet)
-                        #console.log 'bullet added'
                 bullet.save()
-                
-
                 bullet.mesh.applyMatrix(m2)
+                bullet.mesh.rotateOnAxis(new THREE.Vector3(1,0,0),Math.PI/2)
                 @scene.add bullet.mesh
 
             when 'missile'

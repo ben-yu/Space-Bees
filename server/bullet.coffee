@@ -22,7 +22,6 @@ module.exports = class Bullet extends Entity
         @pos = @boundingBox.position
 
     update : =>
-        #console.log 'bullet update'
         t = (+new Date()-@startTime)/1000 # in sec
         @pos.copy(@startPos).add(@dir.clone().multiplyScalar(@speed).multiplyScalar(t))
 
