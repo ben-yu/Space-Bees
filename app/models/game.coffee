@@ -7,6 +7,7 @@ Bullet = require 'models/bullet'
 Bullets = require 'collections/bullets'
 LockedControls = require 'lib/lockedcontrols'
 ChaseCamera = require 'lib/chasecamera'
+HealthbarView = require 'views/healthbar'
 
 module.exports = class Game extends Backbone.Model
     initialize: ->
@@ -110,8 +111,13 @@ module.exports = class Game extends Backbone.Model
 
         # Player's ship
         @ship = new Ship()
+        SpaceBees.Views.HealthBar = new HealthbarView({model: @ship})
 
-        @controls = new LockedControls @ship.mesh
+        @ship.bind 'change:speed', () =>
+            #console.log @ship.get('speed')
+            SpaceBees.Views.HealthBar.speedIndicator.text(Math.floor(@ship.get('speed')) + 'm/s')
+
+        @controls = new LockedControls @ship
 
         @ship.position = @controls.targetObject.position
         @ship.rotationV = @controls.targetObject.rotation
@@ -512,12 +518,7 @@ module.exports = class Game extends Backbone.Model
             ###
 
             
-            @ship.save(null,{
-                success: (model, response) =>
-                    #console.log "promise callback is broken"
-                error: (model, response) =>
-                    #console.log "promise callback is broken"
-            })
+            @ship.save()
 
 
             return

@@ -15,12 +15,8 @@ module.exports = class Bullet extends Entity
         super(@id,"","",data.pos,data.dir)
 
         console.log @id
-
-        @boundingBox = new Physijs.SphereMesh(new THREE.SphereGeometry(3), new THREE.MeshLambertMaterial({ opacity: 0, transparent: true }))
-        @boundingBox.position.set(data.pos.x,data.pos.y,data.pos.z)
-
-        @pos = @boundingBox.position
-
+        @boundingBox = new Physijs.BoxMesh(new THREE.CubeGeometry(1,1,20),new THREE.MeshBasicMaterial({ color: 0x888888 }))
+        @boundingBox.position = @pos
     update : =>
         t = (+new Date()-@startTime)/1000 # in sec
         @pos.copy(@startPos).add(@dir.clone().multiplyScalar(@speed).multiplyScalar(t))

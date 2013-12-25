@@ -39,7 +39,7 @@ module.exports = class MissileModel extends Backbone.Model
         @position.copy(@startPos).add(@velocity.clone().multiplyScalar(t))
         @particleSystem.rotation.y += 0.01
 
-    loadModel : =>
+    loadModel : ->
 
-    sync : (method, model, options) =>
+    sync : (method, model, options) ->
         

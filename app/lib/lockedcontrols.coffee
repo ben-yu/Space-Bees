@@ -5,8 +5,8 @@
 
 module.exports = class LockedControls
     minNormalSpeed: 100.0
-    maxNormalSpeed: 1000.0
-    maxBoosterSpeed: 1000.0
+    maxNormalSpeed: 500.0
+    maxBoosterSpeed: 999.0
     normalAccel: 100.0
     boosterAccel: 200.0
     boostTimer: 0
@@ -42,18 +42,16 @@ module.exports = class LockedControls
         rollRight: 0
         boost: 0
 
-    constructor: (ship,domElement) ->
+    constructor: (ship) ->
 
-        @domElement = ( domElement isnt undefined ) ? domElement : document
-        if domElement
-            @domElement.setAttribute( 'tabindex', -1 )
+        @ship = ship
 
-        @targetObject = ship
+        @targetObject = ship.mesh
         @targetObject.useQuaternion = true
 
         @tmpQuaternion = new THREE.Quaternion()
 
-        @speed = @minNormalSpeed
+        @ship.speed = @minNormalSpeed
         @minSpeed = @minNormalSpeed
         @maxSpeed = @maxNormalSpeed
 
@@ -169,19 +167,17 @@ module.exports = class LockedControls
         if @enabled is false
             return
         
-        #if @moveState.accelerating
-        #    if @speed < @maxSpeed
-        #        @speed += delta * @accel
-        #        @speed = Math.floor(@speed)
-        #else
-        #   if @speed >= 0
-        #        @speed -= delta * @accel
-        #        @speed = Math.ceil(@speed)
+        speed = @ship.get('speed')
+        if speed < @maxSpeed
+            speed += delta * @accel
+        else
+            speed -= delta * @accel
+        @ship.set({speed:speed})
         @updateMovementVector()
         @updateRotationVector()
 
 
-        moveMult = delta * @speed
+        moveMult = delta * speed
         rotMult = delta * @rollSpeed
         barrelMult = delta * @barrelRollSpeed
 

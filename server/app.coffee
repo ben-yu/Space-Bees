@@ -3,6 +3,7 @@ express = require 'express'
 
 GameServer = require './gameserver'
 mongoose = require 'mongoose'
+cluster = require 'cluster'
 
 exports.startServer = (port, path, callback) -> 
     p = process.env.PORT || port

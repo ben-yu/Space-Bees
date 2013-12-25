@@ -14,6 +14,7 @@ module.exports = class ShipModel extends Backbone.Model
         @rotationV = new THREE.Vector3(0, 1, 0)
         @level = 0
         @shotsFired = 0
+        @set "speed", @speed = 0
 
         @mesh = null
 
@@ -41,7 +42,7 @@ module.exports = class ShipModel extends Backbone.Model
     sync : (method, model, options) =>
         options.data ?= {}
         #if method is 'update' or 'read'
-            #console.log method
+        #console.log method
         @connection.emit 'ship_' + method, model.getState(), options.data, (err, data) ->
             if err
                 console.error "error in sync with #{method} #{@.name()} with server (#{err})"
@@ -49,11 +50,12 @@ module.exports = class ShipModel extends Backbone.Model
                 options.success data
 
         @connection.on 'ship_' + method, (data) ->
-            #console.log data
-            if model.id is not data.id
+            #console.log model
+            if not model.id?
                 console.log 'ship_' + method
+                model.id = data.id
                 model.position.copy(data.pos)
-                model.mesh.rotation.copy(data.dir)
+                model.rotationV.copy(data.dir)
 
     name: =>
         if @collection and @collection.name then return @collection.name else throw new Error "Socket model has no name (#{@.collection})"

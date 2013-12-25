@@ -33,7 +33,9 @@ module.exports = class Bullet extends Backbone.Model
             else
                 options.success data
 
-        @connection.on 'bullet_' + method, (data) =>
-            if model.id is data.id
+        @connection.on 'bullet_' + method, (data) ->
+            if not model.id?
+                #console.log 'bullet_' + method
+                model.id = data.id
                 model.position.copy(data.pos)
-            #model.mesh.rotation.copy(data.dir)
+                model.rotationV.copy(data.dir)

@@ -37,7 +37,7 @@ module.exports = class GameServer
             client.on 'players_read', (data) =>
                 client.emit 'players_read', _.map(@players, (v, k) -> return v.getState())
             client.on 'ship_create', (data) =>
-                #console.log 'New Player!'
+                console.log 'New Player!'
                 newPlayer = new Player(client, this, data)
                 @addPlayer(newPlayer)
                 client.emit 'ship_create', newPlayer.getState()
@@ -56,8 +56,9 @@ module.exports = class GameServer
 
             client.on 'bullet_create', (data) =>
                 console.log 'Shot!'
+                console.log data.dir
                 bullet = new Bullet(client,this, data)
-                @addBullet(bullet)
+                @addBullet(bullet,data.dir)
                 client.emit 'bullet_create', bullet.getState()
             client.on 'bullet_read', (data) =>
                 client.emit 'bullet_read', @bullets[data.id].getState()
@@ -74,13 +75,9 @@ module.exports = class GameServer
         @initWorld()
 
     initWorld: () =>
-        #@scene = new Physijs.Scene
-        #@scene.setGravity(new THREE.Vector3(0, 0, 0))
+        @scene = new Physijs.Scene
+        @scene.setGravity(new THREE.Vector3(0, 0, 0))
 
-        # load map mesh
-        #@jsonLoader = new THREE.JSONLoader()
-        #@jsonLoader.load '/public/models/city/city.js' , (a) =>
-            #@map = new Pyhsijs.a
         setInterval(@update,10)
                 
     addEntity: (entity) =>
@@ -88,7 +85,7 @@ module.exports = class GameServer
     
     addPlayer: (player) =>
         if player?
-            #@scene.add player.boundingBox
+            @scene.add player.boundingBox
             @players[player.id] = player
 
     updatePlayer: (playerData) =>
@@ -106,20 +103,21 @@ module.exports = class GameServer
     broadcastPlayerDelete: (id) =>
         @io.sockets.in('room').emit('players_delete', id)
 
-    addBullet: (bullet) =>
+    addBullet: (bullet,dir) =>
         if bullet?
+            #console.log bullet.boundingBox
+            @scene.add bullet.boundingBox
             @bullets[bullet.id] = bullet
-            #@scene.add bullet.boundingBox
-            #bullet.boundingBox.setLinearVelocity({z: -10, y: 0, x: 0 })
+            bullet.boundingBox.setLinearVelocity({z: dir.z, y: dir.y, x: dir.x})
 
     updateBullet: (bulletData) =>
         @bullets[bulletData.id].pos = bulletData.pos
-        @players[bulletData.id].dir = bulletData.dir
+        @bullets[bulletData.id].dir = bulletData.dir
 
     removeBullets: (id) =>
         for k,v of @bullets
             if v.playerID is id
-                #@scene.remove(@bullets[k].boundingBox)
+                @scene.remove(@bullets[k].boundingBox)
                 delete @bullets[k]
 
     broadcastBulletUpdate: (data) =>
@@ -130,14 +128,19 @@ module.exports = class GameServer
 
     update: () =>
         t = 100
+        @scene.simulate()
         #console.log 'update'
         for k,v of @bullets
             v.update()
-        #for k,v of @players
+            @bullets[k].boundingBox.position.copy(@bullets[k].pos)
+            @bullets[k].boundingBox.__dirtyPosition = true
+            @bullets[k].boundingBox.rotation.copy(@bullets[k].dir)
+            @bullets[k].boundingBox.__dirtyRotation = true
+        for k,v of @players
             # TODO: Check player position bounds
-            #@players[k].boundingBox.position.copy(@players[k].pos)
-            #@players[k].boundingBox.__dirtyPosition = true
-            #@players[k].boundingBox.rotation.copy(@players[k].dir)
-            #@players[k].boundingBox.__dirtyRotation = true
+            @players[k].boundingBox.position.copy(@players[k].pos)
+            @players[k].boundingBox.__dirtyPosition = true
+            @players[k].boundingBox.rotation.copy(@players[k].dir)
+            @players[k].boundingBox.__dirtyRotation = true
         @io.sockets.in('room').emit('players_update', _.map(@players, (v, k) -> return v.getState()))
         @io.sockets.in('room').emit('bullets_update', _.map(@bullets, (v, k) -> return v.getState()))

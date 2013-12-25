@@ -39,7 +39,7 @@ module.exports = class LauncherView extends Backbone.View
         
         SpaceBees.Views.Game = new GameView()
 
-        window.game = SpaceBees.Models.Game = new Game()
+        SpaceBees.Models.Game = new Game()
 
         progress = document.getElementById 'progress'
 
