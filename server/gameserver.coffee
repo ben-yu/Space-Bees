@@ -1,7 +1,6 @@
 _ = require 'underscore'
 THREE = require 'three'
-Ammo = require './lib/ammo.js'
-Physijs = require('./lib/physi.js')(THREE,Ammo)
+Physijs = require('./lib/physi_nodemaster.js')(THREE)
 Player = require('./player')
 Bullet = require('./bullet')
 

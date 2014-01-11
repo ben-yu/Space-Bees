@@ -1,4 +1,6 @@
 exports.config =
+    paths:
+        watched: ['app','vendor']
     files:
         javascripts:
             joinTo:

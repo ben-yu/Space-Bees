@@ -1,8 +1,7 @@
 Entity = require './entity'
 Bullet = require './bullet'
 THREE = require 'three'
-Ammo = require './lib/ammo.js'
-Physijs = require('./lib/physi.js')(THREE,Ammo)
+Physijs = require('./lib/physi_nodemaster.js')(THREE)
 
 module.exports = class Player extends Entity
     constructor: (@connection, @server, data) ->
