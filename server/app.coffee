@@ -5,7 +5,7 @@ GameServer = require './gameserver'
 mongoose = require 'mongoose'
 
 exports.startServer = (port, path, callback) -> 
-    p = process.env.PORT || port
+    p = process.env.PORT || port || 3000
     
     app = express()
     path = require 'path'
@@ -50,9 +50,12 @@ exports.startServer = (port, path, callback) ->
 
     # Start Game Server
     gs = new GameServer(io)
-    #gs.run()
     
     console.log 'Listening on port: ' + p
+
+process.execArgv.forEach (elem) ->
+    if elem.match '--debug'
+        exports.startServer()
 
 isHeroku = process.env.IS_HEROKU
 if isHeroku

@@ -1,1 +1,1 @@
-web: node --max-old-space-size=4000 server/app.js
+web: node server/app.js
