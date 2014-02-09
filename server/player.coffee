@@ -1,18 +1,17 @@
 Entity = require './entity'
 Bullet = require './bullet'
-THREE = require 'three'
-Physijs = require('./lib/physi_nodemaster.js')(THREE)
+Cannon = require('./lib/cannon.js')
 
 module.exports = class Player extends Entity
     constructor: (@connection, @server, data) ->
         super(connection.id,"","",data.pos,data.dir)
         @health = 100
 
-        @boundingBox = new Physijs.BoxMesh(new THREE.CubeGeometry(data.box.x,data.box.y,data.box.z), new THREE.MeshBasicMaterial({ color: 0x888888 }))
+        @boundingBox = new Cannon.RigidBody(1,new Cannon.Box(new Cannon.Vec3(data.box.x,data.box.y,data.box.z)))
         @boundingBox.position = @pos
-        @boundingBox.addEventListener 'collision', (other_object, linear_velocity, angular_velocity) =>
+        @boundingBox.addEventListener 'collide', (e) =>
             console.log 'Collision!'
-            if other_object instanceof Player
+            if e.with instanceof Player
                 @connection.emit 'player_damage', @id
 
     getState: =>

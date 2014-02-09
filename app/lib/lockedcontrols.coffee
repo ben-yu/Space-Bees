@@ -4,11 +4,11 @@
 ###
 
 module.exports = class LockedControls
-    minNormalSpeed: 100.0
-    maxNormalSpeed: 500.0
-    maxBoosterSpeed: 999.0
-    normalAccel: 100.0
-    boosterAccel: 200.0
+    minNormalSpeed: 10.0
+    maxNormalSpeed: 50.0
+    maxBoosterSpeed: 99.0
+    normalAccel: 10.0
+    boosterAccel: 20.0
     boostTimer: 0
     rollSpeed: 0.5
     barrelRollSpeed: 5.0
@@ -220,7 +220,7 @@ module.exports = class LockedControls
             @rotationVector.y = -(@cursor_x/@WIDTH - 0.5)
             @rotationVector.z = ( -@moveState.rollRight + @moveState.rollLeft )
 
-    getContainerDimensions: () =>
+    getContainerDimensions: () ->
 
         return { size : [ window.innerWidth, window.innerHeight ], offset : [ 0, 0 ] }
 

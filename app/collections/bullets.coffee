@@ -64,6 +64,8 @@ module.exports = class Bullets extends Backbone.Collection
                             @add(bullet)
                             @parentScene.add(bullet.mesh)
                 when 'delete'
-                    if @get(data)
-                        @parentScene.remove(@get(data).mesh)
-                        @remove(@get(data))
+                    for v in data
+                        if @get(v.id)?
+                            bullet = @get(v.id)
+                            @parentScene.remove(bullet.mesh)
+                            @remove(bullet)

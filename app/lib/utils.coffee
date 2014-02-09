@@ -264,7 +264,7 @@ module.exports = utils =
             obj[name] = utils.createAccumulator name, obj[name], obj
 
         # Bind to unload to synchronously flush accumulated remains
-        $(window).unload =>
+        $(window).unload ->
             handler(async: false) for name, handler of utils.accumulator.handlers
 
     # Returns an accumulator for the given 'func' with the

@@ -16,9 +16,9 @@ module.exports = class Loader
     constructor: (opts) ->
         @jsonLoader = new THREE.JSONLoader()
         
-        @errorCallback = if opts.onError is undefined then ((s) => console.warn("Error while loading %s.".replace("%s", s))) else opts.onError
-        @loadCallback = if opts.onLoad is undefined then (=> console.log("Loaded.")) else opts.onLoad
-        @progressCallback = if opts.onProgress is undefined then ((progress, type, name) => ) else opts.onProgress
+        @errorCallback = if opts.onError is undefined then ((s) -> console.warn("Error while loading %s.".replace("%s", s))) else opts.onError
+        @loadCallback = if opts.onLoad is undefined then (-> console.log("Loaded.")) else opts.onLoad
+        @progressCallback = if opts.onProgress is undefined then ((progress, type, name) -> ) else opts.onProgress
 
         @types = ['textures','texturesCube','geometries','analysers','images','sounds']
 

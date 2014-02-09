@@ -44,19 +44,19 @@ module.exports = class LauncherView extends Backbone.View
         progress = document.getElementById 'progress'
 
         SpaceBees.Loader = new Loader({
-            onLoad: () =>
+            onLoad: () ->
                 console.log "All Loaded"
                 window.socket = new io.connect(window.location.hostname)
                 progress.innerText = "Connecting to Server..."
-                window.socket.on 'client_id', (client_id) =>
+                window.socket.on 'client_id', (client_id) ->
                     SpaceBees.Models.Game.start(client_id)
                     progress.innerText = "Click to Play!"
 
                 #SpaceBees.Models.Game.start(0)
                 #progress.innerText = "Click to Play!"
-            onError: (s) =>
+            onError: (s) ->
                 console.log "Error on " + s
-            onProgress: (p,t,n) =>
+            onProgress: (p,t,n) ->
                 progress.innerText = Math.floor(p.loaded/p.total * 100) + "%"
                 #console.log "Loaded " + t + " : " + n + " ( " + p.loaded + " / " + p.total + " )."
         })

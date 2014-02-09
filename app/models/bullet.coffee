@@ -11,6 +11,7 @@ module.exports = class Bullet extends Backbone.Model
         @maxDist = @get("maxDist") or 10000
         @speed = 500
         @velocity = @get("velocity")
+        @rotation = @get("rotation")
 
         @mesh = new THREE.Mesh(new THREE.CylinderGeometry(1,1,20), new THREE.MeshNormalMaterial())
         @mesh.position = @position
@@ -23,7 +24,7 @@ module.exports = class Bullet extends Backbone.Model
         @position.copy(@startPos).add(@velocity.clone().multiplyScalar(t))
 
     getState: () =>
-        return {'id':@id, 'playerID':@playerID,'shotID':@shotID ,'type':@type,'pos':@position, 'dir':@velocity}
+        return {'id':@id, 'playerID':@playerID,'shotID':@shotID ,'type':@type,'pos':@position, 'vel':@velocity,'dir':@rotation}
 
     sync : (method, model, options) =>
         options.data ?= {}

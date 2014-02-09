@@ -1,4 +1,3 @@
-#Ship = require 'models/ship'
 ActivePlayers = require 'collections/activeplayers'
 Bee = require 'models/bee'
 Ship = require 'models/ship'
@@ -103,7 +102,7 @@ module.exports = class Game extends Backbone.Model
         @scene.add floor
         @objects.push floor
 
-        @generateTerrain()
+        #@generateTerrain()
 
         # Players
         @players = new ActivePlayers([],{parentScene:@scene, selfId:@session_id})
@@ -232,7 +231,7 @@ module.exports = class Game extends Backbone.Model
 
                     instructions.style.display = ''
 
-            pointerlockerror =  (event) =>
+            pointerlockerror =  (event) ->
                 instructions.style.display = ''
 
             # Hook pointer lock state change events
@@ -244,7 +243,7 @@ module.exports = class Game extends Backbone.Model
             document.addEventListener 'mozpointerlockerror', pointerlockerror, false
             document.addEventListener 'webkitpointerlockerror', pointerlockerror, false
 
-            instructions.addEventListener( 'click',  (event) =>
+            instructions.addEventListener( 'click',  (event) ->
 
                 instructions.style.display = 'none'
                 cursorOverlay.style.display = false
@@ -254,7 +253,7 @@ module.exports = class Game extends Backbone.Model
 
                 if ( /Firefox/i.test(navigator.userAgent))
 
-                    fullscreenchange =  (event) =>
+                    fullscreenchange =  (event) ->
 
                         if (document.fullscreenElement is element or document.mozFullscreenElement is element or document.mozFullScreenElement is element)
                             document.removeEventListener( 'fullscreenchange', fullscreenchange )
@@ -287,9 +286,9 @@ module.exports = class Game extends Backbone.Model
 
         return
 
-    initPointerLock : () =>
+    initPointerLock : () ->
 
-    initMap : () =>
+    initMap : () ->
 
     addPlayer: (player) =>
         @players.add(player)
@@ -316,15 +315,15 @@ module.exports = class Game extends Backbone.Model
         id = ( pixelBuffer[0] << 16 ) | ( pixelBuffer[1] << 8 ) | ( pixelBuffer[2] )
         return id
 
-    lockOnTarget: (x,y) =>
+    lockOnTarget: (x,y) ->
         #@target_id = @pickObject(x,y)
 
-    applyVertexColors: (geom, color) =>
+    applyVertexColors: (geom, color) ->
         for f in geom.faces
             for vertexColor in f.vertexColors
                 vertexColor = color
 
-    generateTexture: =>
+    generateTexture: ->
         canvas  = document.createElement( 'canvas' )
         canvas.width = 32
         canvas.height = 64
@@ -408,10 +407,11 @@ module.exports = class Game extends Backbone.Model
             when 'standard'
                 @ship.shotsFired += 1
                 bullet = new Bullet({
-                    session_id:@session_id,
-                    shotID:@ship.shotsFired,
-                    position:@ship.position.clone(),
-                    velocity:newDir.transformDirection(m2)
+                    session_id: @session_id,
+                    shotID: @ship.shotsFired,
+                    position: @ship.position.clone(),
+                    velocity: newDir.transformDirection(m2),
+                    rotation: @controls.targetObject.quaternion
                 })
                 bullet.connection.on 'bullet_create', (data) =>
                     if not bullet.id
@@ -441,7 +441,7 @@ module.exports = class Game extends Backbone.Model
     gameloop: =>
 
         # use requestAnimationFrame to loop animation
-        animate = =>
+        animate = ->
             requestAnimationFrame(animate)
             update()
             render()
@@ -473,12 +473,12 @@ module.exports = class Game extends Backbone.Model
 
             # Projectiles
             if @controls.fireStandard
-                if +new Date() - @lastFireStandard > 100
+                if +new Date() - @lastFireStandard > 1000
                     @lastFireStandard = +new Date()
                     @fire("standard")
 
             if @controls.fireMissile
-                if +new Date() - @lastFireMissile > 500
+                if +new Date() - @lastFireMissile > 5000
                     @lastFireMissile = +new Date()
                     @fire("missile")
 

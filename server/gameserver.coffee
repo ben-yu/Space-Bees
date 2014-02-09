@@ -1,11 +1,13 @@
 _ = require 'underscore'
+Cannon = require('./lib/cannon.js')
 THREE = require 'three'
 Physijs = require('./lib/physi_nodemaster.js')(THREE)
 Player = require('./player')
 Bullet = require('./bullet')
 
+
 module.exports = class GameServer
-    updatesPerSecond: 10
+    updatesPerSecond: 1/60
 
     constructor: (@io) ->
         @entities = {}
@@ -15,15 +17,13 @@ module.exports = class GameServer
         @missiles = {}
         @playerCount = 0
 
-        console.log 'New Game Server!!!!!'
+        @initWorld()
 
         @io.sockets.on 'connection', (client) =>
-            console.log 'new connection!'
-
+            
+            console.log 'New Connection!'
             client.join('room')
-
             client.emit 'client_id', client.id
-
             client.on 'disconnect', () =>
                 @removeBullets(client.id)
                 @broadcastPlayerDelete(client.id)
@@ -71,21 +71,25 @@ module.exports = class GameServer
                 #console.log _.map(@bullets, (v, k) -> return v.getState())
                 client.emit 'bullets_read', _.map(@bullets, (v, k) -> return v.getState())
 
-        @initWorld()
-
     initWorld: () =>
-        @scene = new Physijs.Scene
-        @scene.setGravity(new THREE.Vector3(0, 0, 0))
+        @world = new Cannon.World()
+        @world.quatNormalizeSkip = 0
+        @world.quatNormalizeFast = false
+        #@world.solver.setSpookParams 50000000, 10
+        #@world.solver.iterations = 10
+        @world.gravity.set(0,0,0)
+        @world.broadphase = new Cannon.NaiveBroadphase()
 
-        setInterval(@update,10)
+        setInterval(@update,@updatesPerSecond * 1000)
                 
     addEntity: (entity) =>
         @entities[entity.id] = entity
     
     addPlayer: (player) =>
         if player?
-            @scene.add player.boundingBox
+            @world.add player.boundingBox
             @players[player.id] = player
+            @playerCount++
 
     updatePlayer: (playerData) =>
         @players[playerData.id].pos = playerData.pos
@@ -93,8 +97,9 @@ module.exports = class GameServer
 
     removePlayer: (id) =>
         if @players[id] != null
-            @scene.remove(@players[id].boundingBox)
+            @world.remove(@players[id].boundingBox)
             delete @players[id]
+            @playerCount--
 
     broadcastPlayerUpdate: (player) =>
         @io.sockets.in('room').emit('ship_update',  @players[player.id].getState())
@@ -104,42 +109,46 @@ module.exports = class GameServer
 
     addBullet: (bullet,dir) =>
         if bullet?
-            #console.log bullet.boundingBox
-            @scene.add bullet.boundingBox
             @bullets[bullet.id] = bullet
-            bullet.boundingBox.setLinearVelocity({z: dir.z, y: dir.y, x: dir.x})
+            @world.add bullet.boundingBox
+            worldPoint = new Cannon.Vec3(0,0,0)
+            force = new Cannon.Vec3(bullet.impulse*bullet.vel.x,bullet.impulse*bullet.vel.y,bullet.impulse*bullet.vel.z)
+            bullet.boundingBox.applyForce(force,worldPoint)
+            setTimeout(@removeBullet,5000,bullet.id)            
 
     updateBullet: (bulletData) =>
         @bullets[bulletData.id].pos = bulletData.pos
         @bullets[bulletData.id].dir = bulletData.dir
 
+    removeBullet: (id) =>
+        @io.sockets.in('room').emit('bullets_delete', @bullets[id].getState())
+        @world.remove(@bullets[id].boundingBox)
+        delete @bullets[id]        
+
     removeBullets: (id) =>
         for k,v of @bullets
             if v.playerID is id
-                @scene.remove(@bullets[k].boundingBox)
+                @world.remove(@bullets[k].boundingBox)
                 delete @bullets[k]
 
     broadcastBulletUpdate: (data) =>
         @io.sockets.in('room').emit('bullet_update',  @bullets[data.id])
 
     broadcastBulletDelete: (id) =>
-        @io.sockets.in('room').emit('bullets_delete', id)
+        
 
     update: () =>
-        t = 100
-        @scene.simulate()
-        #console.log 'update'
-        for k,v of @bullets
-            v.update()
-            @bullets[k].boundingBox.position.copy(@bullets[k].pos)
-            @bullets[k].boundingBox.__dirtyPosition = true
-            @bullets[k].boundingBox.rotation.copy(@bullets[k].dir)
-            @bullets[k].boundingBox.__dirtyRotation = true
-        for k,v of @players
-            # TODO: Check player position bounds
-            @players[k].boundingBox.position.copy(@players[k].pos)
-            @players[k].boundingBox.__dirtyPosition = true
-            @players[k].boundingBox.rotation.copy(@players[k].dir)
-            @players[k].boundingBox.__dirtyRotation = true
-        @io.sockets.in('room').emit('players_update', _.map(@players, (v, k) -> return v.getState()))
-        @io.sockets.in('room').emit('bullets_update', _.map(@bullets, (v, k) -> return v.getState()))
+        if @playerCount > 0
+            @world.step(@updatesPerSecond)
+            #for k,v of @bullets
+                #v.update()
+                #@bullets[k].boundingBox.position.copy(@bullets[k].pos)
+                #@bullets[k].boundingBox.__dirtyPosition = true
+                #@bullets[k].boundingBox.rotation.copy(@bullets[k].dir)
+                #@bullets[k].boundingBox.__dirtyRotation = true
+            for k,v of @players
+                # TODO: Check player position bounds
+                @players[k].boundingBox.position.copy(@players[k].pos)
+                #@players[k].boundingBox.quaternion.copy(@players[k].dir)
+            @io.sockets.in('room').emit('players_update', _.map(@players, (v, k) -> return v.getState()))
+            @io.sockets.in('room').emit('bullets_update', _.map(@bullets, (v, k) -> return v.getState()))

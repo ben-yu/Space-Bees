@@ -1,9 +1,9 @@
-THREE = require 'three'
+Cannon = require('./lib/cannon.js')
 
 module.exports = class Entity
     constructor: (@id, @type, @kind, pos, dir) ->
-        @pos = new THREE.Vector3(pos.x,pos.y,pos.z)
-        @dir = new THREE.Vector3(dir.x,dir.y,dir.z)
+        @pos = new Cannon.Vec3(pos.x,pos.y,pos.z)
+        @dir = new Cannon.Vec3(dir.x,dir.y,dir.z)
 
     setPosition: (pos) =>
         @pos = pos
