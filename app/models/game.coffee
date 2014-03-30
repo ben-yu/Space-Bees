@@ -7,15 +7,10 @@ Bullets = require 'collections/bullets'
 LockedControls = require 'lib/lockedcontrols'
 ChaseCamera = require 'lib/chasecamera'
 HealthbarView = require 'views/healthbar'
+MapGenerator = require 'lib/mapgenerator'
 
 module.exports = class Game extends Backbone.Model
     initialize: ->
-
-    start: (session_id) =>
-        container = $('#game')
-
-        @session_id = session_id
-
         @lastFireStandard = +new Date()
         @lastFireMissile = +new Date()
 
@@ -24,13 +19,17 @@ module.exports = class Game extends Backbone.Model
         @pickingObjects = []
         @materials = {}
 
+    start: (data) =>
+        console.warn = () ->
+        console.log = () ->
+        container = $('#game')
+
+        @session_id = data.clientId
+
         WIDTH = window.innerWidth
         HEIGHT = window.innerHeight
 
-        blocker = document.getElementById 'blocker'
-        instructions = document.getElementById 'instructions'
-
-        # Cursor Init
+        # - Cursor
         cursorOverlay = document.getElementById('cursorOverlay')
         cursorOverlay.width = WIDTH
         cursorOverlay.height = HEIGHT
@@ -41,7 +40,8 @@ module.exports = class Game extends Backbone.Model
         cursorOverlay.style.position = 'absolute'
         @context = cursorOverlay.getContext('2d')
 
-        # set some camera attributes
+        # - Camera
+
         VIEW_ANGLE = 45
         ASPECT = WIDTH / HEIGHT
         NEAR = 0.1
@@ -50,59 +50,44 @@ module.exports = class Game extends Backbone.Model
         @camera = new THREE.PerspectiveCamera VIEW_ANGLE, ASPECT, NEAR, FAR
         @projector = new THREE.Projector()
 
-        @scene = new THREE.Scene
-        @scene.fog = new THREE.Fog( 0xffffff, 3000, 100000 )
-        @scene.fog.color.setHSL( 0.51, 0.6, 0.6 )
+        # - CannonJS World
+        @cannonWorld = new CANNON.World()
+        @cannonWorld.quatNormalizeSkip = 0
+        @cannonWorld.quatNormalizeFast = false
+        solver = new CANNON.GSSolver()
+        solver.iterations = 7
+        solver.tolerance = 0.1
+        @cannonWorld.defaultContactMaterial.contactEquationStiffness = 1e9
+        @cannonWorld.defaultContactMaterial.contactEquationRegularizationTime = 4
+        @cannonWorld.solver = new CANNON.SplitSolver(solver)
+        @cannonWorld.solver = solver
+        @cannonWorld.gravity.set(0,0,0)
+        @cannonWorld.broadphase = new CANNON.NaiveBroadphase()
+        @cannonWorld.solver.iterations = 7
 
+        physicsMaterial = new CANNON.Material "slipperyMaterial"
+        physicsContactMaterial = new CANNON.ContactMaterial physicsMaterial, physicsMaterial, 0.0, 0.3
+        @cannonWorld.addContactMaterial physicsContactMaterial
+
+        # - Map
+
+        @scene = new THREE.Scene
+        mapGen = new MapGenerator()
+        mapGen.createMap(@scene,@cannonWorld,data.mapData)
+        @renderer = new THREE.WebGLRenderer { antialias: false }
+        @renderer.setClearColor(@scene.fog.color,1)
+
+        ### - Mouse Lock-on
         @pickingScene = new THREE.Scene
         @pickingTexture = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight )
         @pickingTexture.generateMipmaps = false
 
-        @renderer = new THREE.WebGLRenderer { antialias: false }
-        @renderer.setClearColor( @scene.fog.color, 1 )
 
         @pickRenderer = new THREE.WebGLRenderer( { antialias: true } )
         @pickRenderer.setClearColor(0xffffff)
         @pickRenderer.sortObjects = false
         @pickRenderer.setSize( window.innerWidth, window.innerHeight )
-
-        # Skybox
-
-        skyshader = THREE.ShaderLib["cube"]
-        skyshader.uniforms["tCube"].value  = SpaceBees.Loader.get('texturesCube','interstellar')
-
-        skymaterial = new THREE.ShaderMaterial({
-            fragmentShader : skyshader.fragmentShader,
-            vertexShader : skyshader.vertexShader,
-            uniforms : skyshader.uniforms,
-            depthWrite: false,
-            side: THREE.BackSide
-        })
-
-        skybox = new THREE.Mesh( new THREE.CubeGeometry(200000, 200000, 200000), skymaterial )
-        @scene.add skybox
-
-        # Terrain Generation
-
-        initColor = new THREE.Color( 0x497f13 )
-        initTexture = THREE.ImageUtils.generateDataTexture( 1, 1, initColor )
-
-        groundMaterial = new THREE.MeshPhongMaterial { color: 0xffffff, specular: 0x111111, map: initTexture }
-
-        groundTexture = SpaceBees.Loader.get('textures','chipmetal')
-        groundMaterial.map = groundTexture
-        groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping
-        groundTexture.repeat.set( 25, 25 )
-        groundTexture.anisotropy = 16
-
-        floor = new THREE.Mesh( new THREE.PlaneGeometry( 200000, 200000 ), groundMaterial )
-        floor.position.y = -250
-        floor.rotation.x = - Math.PI / 2
-        floor.receiveShadow = true
-        @scene.add floor
-        @objects.push floor
-
-        #@generateTerrain()
+        ###
 
         # Players
         @players = new ActivePlayers([],{parentScene:@scene, selfId:@session_id})
@@ -113,7 +98,6 @@ module.exports = class Game extends Backbone.Model
         SpaceBees.Views.HealthBar = new HealthbarView({model: @ship})
 
         @ship.bind 'change:speed', () =>
-            #console.log @ship.get('speed')
             SpaceBees.Views.HealthBar.speedIndicator.text(Math.floor(@ship.get('speed')) + 'm/s')
 
         @controls = new LockedControls @ship
@@ -125,11 +109,16 @@ module.exports = class Game extends Backbone.Model
 
         @scene.add @ship.mesh
         @scene.add @camera
+        @cannonWorld.add @controls.cannonBody
 
         # Projectiles
         @bullets = new Bullets([],{parentScene:@scene, selfId:@session_id})
         @bullets.fetch()
         @missiles = new Backbone.Collection()
+
+        ###
+        # Scene set-up
+        ###
 
         # Lighting
         ambient = 0x555555
@@ -145,17 +134,9 @@ module.exports = class Game extends Backbone.Model
         sun.lookAt new THREE.Vector3()
         @scene.add sun
 
-        @ray = new THREE.Raycaster()
-        @intersectDirections = [new THREE.Vector3(0,-1,0),
-                                new THREE.Vector3(0,1,0),
-                                new THREE.Vector3(-1,0,0),
-                                new THREE.Vector3(1,0,0),
-                                new THREE.Vector3(0,0,-1),
-                                new THREE.Vector3(0,0,1)]
-
         @renderer.setSize WIDTH, HEIGHT
 
-        # POSTPROCESSING
+        # Post-processing
         @renderer.autoClear = false
 
         renderTargetParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat, stencilBuffer: false }
@@ -202,80 +183,8 @@ module.exports = class Game extends Backbone.Model
         @composer.addPass( vblur )
         @composer.addPass( effectVignette )
 
-        # Pointer Lock - http://www.html5rocks.com/en/tutorials/pointerlock/intro/
-        havePointerLock = 'pointerLockElement' of document or
-            'mozPointerLockElement' of document or
-            'webkitPointerLockElement' of document
-
-        if havePointerLock
-
-            element = document.body
-
-            pointerlockchange =  (event) =>
-
-                if document.pointerLockElement is element or document.mozPointerLockElement is element or document.webkitPointerLockElement is element
-
-                    @controls.enabled = true
-                    @controls.cursor_x = WIDTH/2
-                    @controls.cursor_y = HEIGHT/2
-                    blocker.style.display = 'none'
-                    cursorOverlay.style.display = true
-            
-                else
-
-                    @controls.enabled = false
-                    blocker.style.display = '-webkit-box'
-                    blocker.style.display = '-moz-box'
-                    blocker.style.display = 'box'
-                    cursorOverlay.style.display = false
-
-                    instructions.style.display = ''
-
-            pointerlockerror =  (event) ->
-                instructions.style.display = ''
-
-            # Hook pointer lock state change events
-            document.addEventListener 'pointerlockchange', pointerlockchange, false
-            document.addEventListener 'mozpointerlockchange', pointerlockchange, false
-            document.addEventListener 'webkitpointerlockchange', pointerlockchange, false
-
-            document.addEventListener 'pointerlockerror', pointerlockerror, false
-            document.addEventListener 'mozpointerlockerror', pointerlockerror, false
-            document.addEventListener 'webkitpointerlockerror', pointerlockerror, false
-
-            instructions.addEventListener( 'click',  (event) ->
-
-                instructions.style.display = 'none'
-                cursorOverlay.style.display = false
-
-                # Ask the browser to lock the pointer
-                element.requestPointerLock = element.requestPointerLock or element.mozRequestPointerLock or element.webkitRequestPointerLock
-
-                if ( /Firefox/i.test(navigator.userAgent))
-
-                    fullscreenchange =  (event) ->
-
-                        if (document.fullscreenElement is element or document.mozFullscreenElement is element or document.mozFullScreenElement is element)
-                            document.removeEventListener( 'fullscreenchange', fullscreenchange )
-                            document.removeEventListener( 'mozfullscreenchange', fullscreenchange )
-
-                        element.requestPointerLock()
-
-                    document.addEventListener( 'fullscreenchange', fullscreenchange, false )
-                    document.addEventListener( 'mozfullscreenchange', fullscreenchange, false )
-
-                    element.requestFullscreen = element.requestFullscreen or element.mozRequestFullscreen or element.mozRequestFullScreen or element.webkitRequestFullscreen
-                    element.requestFullscreen()
-
-                else
-                    element.requestPointerLock()
-
-            , false)
-
-        else
-            instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API'
-
-        container.prepend(@renderer.domElement)
+        pointerLock = require 'lib/pointerlock'
+        pointerLock(container,@renderer,@controls)
 
         bg_sound = new Howl({
             urls: ['sounds/background/8_bit.mp3'],
@@ -283,7 +192,6 @@ module.exports = class Game extends Backbone.Model
         })
 
         @gameloop()
-
         return
 
     initPointerLock : () ->
@@ -323,83 +231,8 @@ module.exports = class Game extends Backbone.Model
             for vertexColor in f.vertexColors
                 vertexColor = color
 
-    generateTexture: ->
-        canvas  = document.createElement( 'canvas' )
-        canvas.width = 32
-        canvas.height = 64
-        context = canvas.getContext('2d')
-
-        #plain it in white
-        context.fillStyle  = '#ffffff'
-        context.fillRect(0, 0, 32, 64)
-        # draw the window rows - with a small noise to simulate light variations in each room
-        for y in [2...64] by 2
-            for x in [0...32] by 2
-                value   = Math.floor( Math.random() * 64 )
-                context.fillStyle = 'rgb(' + [value, value, value].join(',')  + ')'
-                context.fillRect( x, y, 2, 1 )
-
-        # build a bigger canvas and copy the small one in it
-        # This is a trick to upscale the texture without filtering
-        canvas2 = document.createElement('canvas')
-        canvas2.width  = 512
-        canvas2.height = 1024
-        context = canvas2.getContext('2d')
-
-        # disable smoothing
-        context.imageSmoothingEnabled = false
-        context.webkitImageSmoothingEnabled  = false
-        context.mozImageSmoothingEnabled = false
-
-        # then draw the image
-        context.drawImage( canvas, 0, 0, canvas2.width, canvas2.height )
-        return canvas2
-
-    generateTerrain: =>
-
-        # generate the texture
-        texture = new THREE.Texture(@generateTexture())
-        texture.wrapS = texture.wrapT = THREE.RepeatWrapping
-        texture.repeat.set(5, 5)
-        texture.anisotropy = @renderer.getMaxAnisotropy()
-
-        texture.needsUpdate = true
-
-        # build the mesh
-        material  = new THREE.MeshLambertMaterial({
-            map : texture,
-            vertexColors : THREE.VertexColors
-        })
-        
-        light = new THREE.Color( 0xffffff )
-        shadow    = new THREE.Color( 0x303050 )
-        
-        buildings = new THREE.Object3D()
-        for i in [0..3]
-            # set .vertexColors for each face
-            geometry = SpaceBees.Loader.get('geometries','city')
-            for j in [0..geometry.faces.length-1]
-                value    = 1 - Math.random() * Math.random()
-                baseColor   = new THREE.Color().setRGB( value + Math.random() * 0.1, value, value + Math.random() * 0.1 )
-                # set topColor/bottom vertexColors as adjustement of baseColor
-                topColor    = baseColor.clone().multiply( light )
-                bottomColor = baseColor.clone().multiply( shadow )
-                if j == 2
-                    # set face.vertexColors on root face
-                    geometry.faces[ j ].vertexColors = [ baseColor, baseColor, baseColor, baseColor ]
-                else
-                    # set face.vertexColors on sides faces
-                    geometry.faces[ j ].vertexColors = [ topColor, bottomColor, bottomColor, topColor ]
-            city = new THREE.Mesh(geometry, material)
-            city.scale.set(15000.0,15000.0,15000.0)
-            city.position.y = -250
-            city.rotation.y = (Math.PI / 2) * i
-            buildings.add(city)
-        @scene.add buildings
-
     fire: (type) =>
         m2 = new THREE.Matrix4()
-        #m2.makeRotationY(Math.PI)
         m2.multiplyMatrices(m2,@controls.targetObject.matrix)
         m2.multiplyScalar(1/@ship.scaleFactor)
         newDir = new THREE.Vector3(0,0,-1)
@@ -450,6 +283,7 @@ module.exports = class Game extends Backbone.Model
         update = =>
 
             delta = @clock.getDelta()
+            @cannonWorld.step(delta)
             @chasecamera.update(delta)
             @controls.update(delta)
 
@@ -463,11 +297,6 @@ module.exports = class Game extends Backbone.Model
             if @controls.aimMode
                 @lockOnTarget(@controls.cursor_x,@controls.cursor_y)
 
-
-            #@lastUpdate += delta
-            # Rate limit updates
-            #if @lastUpdate > @tickrate
-                #@lastUpdate = 0
             @players.fetch() # Active Players
             @bullets.fetch()
 
@@ -481,46 +310,8 @@ module.exports = class Game extends Backbone.Model
                 if +new Date() - @lastFireMissile > 5000
                     @lastFireMissile = +new Date()
                     @fire("missile")
-
-            #@bullets.forEach (bullet) =>
-                #bullet.update()
-                #if (new THREE.Vector3().subVectors(bullet.startPos, bullet.position).length()> bullet.maxDist)
-                    #@scene.remove(bullet.mesh)
-                    #bullet.destroy()
-
-            ###
-            @missiles.forEach (bullet) =>
-                bullet.update()
-                if (new THREE.Vector3().subVectors(bullet.startPos, bullet.position).length()> bullet.maxDist)
-                    @scene.remove(bullet.mesh)
-                    bullet.destroy()
-            ###
-
-            # Collision
-
-            ###
-            @ray.ray.origin.copy @controls.getObject().position
-            @ray.ray.origin.y -= 10
-
-            for dir in @intersectDirections
-
-                @ray.ray.direction.copy(dir)
-
-                intersections = @ray.intersectObjects(@objects)
-
-                if intersections.length > 0
-                    for intersection in intersections
-                        distance = intersection.distance
-                        if distance > 0 and distance < 10
-                            @controls.collision(true)
-                            console.log 'collision!'
-
-            ###
-
             
             @ship.save()
-
-
             return
 
         # call renderer
@@ -529,8 +320,9 @@ module.exports = class Game extends Backbone.Model
             @renderer.clear()
             @renderer.initWebGLObjects( @scene )
             @composer.render( 0.1 )
-            ###
+            
             # Render Cursor
+            ###
             @context.save()
             @context.clearRect(0,0,window.innerWidth,window.innerHeight)
             @context.translate(@controls.cursor_x, @controls.cursor_y)
@@ -546,5 +338,6 @@ module.exports = class Game extends Backbone.Model
                 @projector.projectVector(pos,@camera)
                 @context.drawImage(SpaceBees.Loader.get('images','target_lock'),pos.x * window.innerWidth/2 + window.innerWidth/2,pos.y  * -window.innerHeight/2 + window.innerHeight/2)
             ###
+
         animate()
         return

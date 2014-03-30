@@ -5,8 +5,8 @@
 
 module.exports = class LockedControls
     minNormalSpeed: 10.0
-    maxNormalSpeed: 50.0
-    maxBoosterSpeed: 99.0
+    maxNormalSpeed: 200.0
+    maxBoosterSpeed: 300.0
     normalAccel: 10.0
     boosterAccel: 20.0
     boostTimer: 0
@@ -57,8 +57,6 @@ module.exports = class LockedControls
 
         @accel = @normalAccel
 
-        @velocity = new THREE.Vector3(0,0,0)
-
         @WIDTH =  window.innerWidth
         @HEIGHT = window.innerHeight
 
@@ -68,6 +66,16 @@ module.exports = class LockedControls
         @PI_2 = Math.PI / 2
 
         @enabled = false
+        @cannonBody = ship.cannonBox
+        
+        contactNormal = new CANNON.Vec3()
+        upAxis = new CANNON.Vec3(0,1,0)
+        @cannonBody.addEventListener 'collide', (e) ->
+            contact = e.contact
+            if contact.bi.id is @cannonBody.id
+                contact.ni.negate contactNormal
+            else
+                contact.ni.copy contactNormal
 
         document.addEventListener( 'mouseup', @onMouseUp, false )
         document.addEventListener( 'mousedown', @onMouseDown, false )
@@ -199,6 +207,7 @@ module.exports = class LockedControls
 
         # expose the rotation vector for convenience
         @targetObject.rotation.setEulerFromQuaternion( @targetObject.quaternion, @targetObject.eulerOrder )
+        @cannonBody.position.copy(@targetObject.position)
 
 
     updateMovementVector: () =>

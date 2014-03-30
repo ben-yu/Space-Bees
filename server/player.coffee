@@ -11,8 +11,7 @@ module.exports = class Player extends Entity
         @boundingBox.position = @pos
         @boundingBox.addEventListener 'collide', (e) =>
             console.log 'Collision!'
-            if e.with instanceof Player
-                @connection.emit 'player_damage', @id
+            @connection.emit 'player_damage', @id
 
     getState: =>
-        return {'id':@id,'type':@type,'pos':@pos,'dir':@dir, 'box': @minBox}
+        return {'id':@id,'type':@type,'pos':{'x':@pos.x,'y':@pos.y,'z':@pos.z},'dir':@dir, 'box': @minBox}

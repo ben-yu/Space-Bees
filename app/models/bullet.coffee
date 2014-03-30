@@ -13,7 +13,7 @@ module.exports = class Bullet extends Backbone.Model
         @velocity = @get("velocity")
         @rotation = @get("rotation")
 
-        @mesh = new THREE.Mesh(new THREE.CylinderGeometry(1,1,20), new THREE.MeshNormalMaterial())
+        @mesh = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshNormalMaterial())
         @mesh.position = @position
         #@mesh.rotation.copy(@velocity)
         #console.log(@velocity)

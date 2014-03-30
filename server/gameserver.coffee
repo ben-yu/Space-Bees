@@ -1,7 +1,5 @@
 _ = require 'underscore'
 Cannon = require('./lib/cannon.js')
-THREE = require 'three'
-Physijs = require('./lib/physi_nodemaster.js')(THREE)
 Player = require('./player')
 Bullet = require('./bullet')
 
@@ -16,6 +14,7 @@ module.exports = class GameServer
         @bullets = {}
         @missiles = {}
         @playerCount = 0
+        @mapData = @generateMap()
 
         @initWorld()
 
@@ -23,7 +22,9 @@ module.exports = class GameServer
             
             console.log 'New Connection!'
             client.join('room')
-            client.emit 'client_id', client.id
+
+            client.emit 'gameStart', {'clientId':client.id,'mapData':@mapData}
+
             client.on 'disconnect', () =>
                 @removeBullets(client.id)
                 @broadcastPlayerDelete(client.id)
@@ -75,12 +76,28 @@ module.exports = class GameServer
         @world = new Cannon.World()
         @world.quatNormalizeSkip = 0
         @world.quatNormalizeFast = false
-        #@world.solver.setSpookParams 50000000, 10
-        #@world.solver.iterations = 10
         @world.gravity.set(0,0,0)
         @world.broadphase = new Cannon.NaiveBroadphase()
 
         setInterval(@update,@updatesPerSecond * 1000)
+
+    generateMap: () =>
+        cityWidth = 10
+        cityHeight = 10
+
+        buildingData = []
+
+        for i in [0..cityWidth]
+            for j in [0..cityHeight]
+                buildingData[cityWidth*i + j] = {}
+                buildingData[cityWidth*i + j].h  = Math.random() * Math.random() * Math.random() * Math.random() * 5000 + 1000
+                buildingData[cityWidth*i + j].w  = 500
+                buildingData[cityWidth*i + j].x = (i - cityWidth/2) * 1000
+                buildingData[cityWidth*i + j].y = Math.random()*Math.PI*2
+                buildingData[cityWidth*i + j].z = (j - cityHeight/2) * 1000
+
+        return buildingData
+
                 
     addEntity: (entity) =>
         @entities[entity.id] = entity
@@ -89,17 +106,17 @@ module.exports = class GameServer
         if player?
             @world.add player.boundingBox
             @players[player.id] = player
-            @playerCount++
+            @playerCount += 1
 
     updatePlayer: (playerData) =>
-        @players[playerData.id].pos = playerData.pos
+        @players[playerData.id].pos.set(playerData.pos.x,playerData.pos.y,playerData.pos.z)
         @players[playerData.id].dir = playerData.dir
 
     removePlayer: (id) =>
         if @players[id] != null
             @world.remove(@players[id].boundingBox)
             delete @players[id]
-            @playerCount--
+            @playerCount -= 1
 
     broadcastPlayerUpdate: (player) =>
         @io.sockets.in('room').emit('ship_update',  @players[player.id].getState())
@@ -112,6 +129,7 @@ module.exports = class GameServer
             @bullets[bullet.id] = bullet
             @world.add bullet.boundingBox
             worldPoint = new Cannon.Vec3(0,0,0)
+            console.log bullet.vel
             force = new Cannon.Vec3(bullet.impulse*bullet.vel.x,bullet.impulse*bullet.vel.y,bullet.impulse*bullet.vel.z)
             bullet.boundingBox.applyForce(force,worldPoint)
             setTimeout(@removeBullet,5000,bullet.id)            

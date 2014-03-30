@@ -39,12 +39,10 @@ module.exports = class Bullets extends Backbone.Collection
                             # update bullet pos and rot
                             bullet = @get(v.id)
                             bullet.mesh.position.copy(v.pos)
-                            #bullet.mesh.rotation.copy(v.dir)
                         else if v.playerID isnt @selfId
                             # Create a new bullet
                             m2 = new THREE.Matrix4()
-                            m2.makeRotationY(-Math.PI)
-                            newDir = new THREE.Vector3(0,1,0)
+                            newDir = new THREE.Vector3(0,0,-1)
                             pos = new THREE.Vector3(v.pos.x,v.pos.y,v.pos.z)
                             bullet = new Bullet({id:v.id,playerID:v.playerID,shotID:v.shotID,position:pos,velocity:v.dir})
                             @add(bullet)
@@ -54,11 +52,9 @@ module.exports = class Bullets extends Backbone.Collection
                         if @get(v.id)?
                             bullet = @get(v.id)
                             bullet.mesh.position.copy(v.pos)
-                            #bullet.mesh.rotation.copy(v.dir)
                         else if v.playerID isnt @selfId
                             m2 = new THREE.Matrix4()
-                            m2.makeRotationX(-Math.PI/2)
-                            newDir = new THREE.Vector3(0,1,0)
+                            newDir = new THREE.Vector3(0,0,-1)
                             pos = new THREE.Vector3(v.pos.x,v.pos.y,v.pos.z)
                             bullet = new Bullet({id:v.id,playerID:v.playerID,shotID:v.shotID,position:pos})
                             @add(bullet)

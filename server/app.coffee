@@ -16,7 +16,7 @@ exports.startServer = (port, path, callback) ->
     app.get '/', (req, res) -> 
         res.sendfile(path.resolve(__dirname, '../public/index.html'))
       
-    # Mongo
+    ### Mongo
     mongoose.connect('mongodb://localhost/spacebees')
 
     Account = new mongoose.Schema
@@ -41,6 +41,7 @@ exports.startServer = (port, path, callback) ->
                     res.send 'Error: '
                 else
                     res.send 'Success'
+    ###
     
     server = app.listen p
 

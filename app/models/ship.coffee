@@ -1,7 +1,7 @@
 module.exports = class ShipModel extends Backbone.Model
     initialize : () =>
         @connection = window.socket
-        @set "position", @position = @get("position") or new THREE.Vector3()
+        @set "position", @position = @get("position") or new THREE.Vector3(0,2000,100)
         @set "velocity", new THREE.Vector3(0, 0, 0)
         @scaleFactor = 15.0
         @startDate = +new Date()
@@ -29,6 +29,9 @@ module.exports = class ShipModel extends Backbone.Model
         @mesh = new THREE.Mesh(geom, new THREE.MeshNormalMaterial())
         @mesh.scale.set(@scaleFactor,@scaleFactor,@scaleFactor)
         @mesh.position.copy(@position)
+
+        @cannonBox =  new CANNON.RigidBody(1,new CANNON.Box(new CANNON.Vec3(@minBox.x/2,@minBox.y/2,@minBox.z/2)))
+        @cannonBox.position.copy(@position)
 
     setControls : ->
     standardFire : ->

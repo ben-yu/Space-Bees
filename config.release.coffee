@@ -1,6 +1,8 @@
 exports.config =
     paths:
         watched: ['app','vendor']
+    optimize: true
+    sourceMaps: false
     files:
         javascripts:
             joinTo:

@@ -64,6 +64,12 @@ exports.config =
                     value: 80
                     level: "ignore"
 
+    overrides:
+        production:
+            optimize: true
+            sourceMaps: false
+            plugins: autoReload: enabled: false
+
     server:
         path: 'server/app.coffee'
         port: 3333

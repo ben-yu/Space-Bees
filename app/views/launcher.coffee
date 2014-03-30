@@ -48,12 +48,11 @@ module.exports = class LauncherView extends Backbone.View
                 console.log "All Loaded"
                 window.socket = new io.connect(window.location.hostname)
                 progress.innerText = "Connecting to Server..."
-                window.socket.on 'client_id', (client_id) ->
-                    SpaceBees.Models.Game.start(client_id)
+
+                window.socket.on 'gameStart', (data) ->
+                    SpaceBees.Models.Game.start(data)
                     progress.innerText = "Click to Play!"
 
-                #SpaceBees.Models.Game.start(0)
-                #progress.innerText = "Click to Play!"
             onError: (s) ->
                 console.log "Error on " + s
             onProgress: (p,t,n) ->
