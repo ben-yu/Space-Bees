@@ -14,9 +14,11 @@ module.exports = class GameServer
         @bullets = {}
         @missiles = {}
         @playerCount = 0
-        @mapData = @generateMap()
 
         @initWorld()
+        @mapData = @generateMap()
+
+        
 
         @io.sockets.on 'connection', (client) =>
             
@@ -95,6 +97,9 @@ module.exports = class GameServer
                 buildingData[cityWidth*i + j].x = (i - cityWidth/2) * 1000
                 buildingData[cityWidth*i + j].y = Math.random()*Math.PI*2
                 buildingData[cityWidth*i + j].z = (j - cityHeight/2) * 1000
+                #cannonBox =  new Cannon.RigidBody(1,new Cannon.Box(
+                #    new Cannon.Vec3(buildingData[cityWidth*i + j].w/2,buildingData[cityWidth*i + j].h/2,buildingData[cityWidth*i + j].w/2)))
+                #@world.add cannonBox
 
         return buildingData
 

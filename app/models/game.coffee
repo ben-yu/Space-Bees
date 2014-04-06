@@ -21,7 +21,7 @@ module.exports = class Game extends Backbone.Model
 
     start: (data) =>
         console.warn = () ->
-        console.log = () ->
+        #console.log = () ->
         container = $('#game')
 
         @session_id = data.clientId
@@ -73,8 +73,9 @@ module.exports = class Game extends Backbone.Model
 
         @scene = new THREE.Scene
         mapGen = new MapGenerator()
-        mapGen.createMap(@scene,@cannonWorld,data.mapData)
         @renderer = new THREE.WebGLRenderer { antialias: false }
+        
+        mapGen.createMap(@scene,@cannonWorld,@renderer,data.mapData)
         @renderer.setClearColor(@scene.fog.color,1)
 
         ### - Mouse Lock-on
@@ -283,7 +284,6 @@ module.exports = class Game extends Backbone.Model
         update = =>
 
             delta = @clock.getDelta()
-            @cannonWorld.step(delta)
             @chasecamera.update(delta)
             @controls.update(delta)
 
@@ -312,6 +312,8 @@ module.exports = class Game extends Backbone.Model
                     @fire("missile")
             
             @ship.save()
+
+            @cannonWorld.step(delta)
             return
 
         # call renderer
@@ -322,7 +324,7 @@ module.exports = class Game extends Backbone.Model
             @composer.render( 0.1 )
             
             # Render Cursor
-            ###
+            
             @context.save()
             @context.clearRect(0,0,window.innerWidth,window.innerHeight)
             @context.translate(@controls.cursor_x, @controls.cursor_y)
@@ -337,7 +339,7 @@ module.exports = class Game extends Backbone.Model
                 pos = @pickingObjects[0].position.clone()
                 @projector.projectVector(pos,@camera)
                 @context.drawImage(SpaceBees.Loader.get('images','target_lock'),pos.x * window.innerWidth/2 + window.innerWidth/2,pos.y  * -window.innerHeight/2 + window.innerHeight/2)
-            ###
+
 
         animate()
         return

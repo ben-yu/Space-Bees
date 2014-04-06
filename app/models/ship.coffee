@@ -30,8 +30,10 @@ module.exports = class ShipModel extends Backbone.Model
         @mesh.scale.set(@scaleFactor,@scaleFactor,@scaleFactor)
         @mesh.position.copy(@position)
 
-        @cannonBox =  new CANNON.RigidBody(1,new CANNON.Box(new CANNON.Vec3(@minBox.x/2,@minBox.y/2,@minBox.z/2)))
-        @cannonBox.position.copy(@position)
+        physicsMaterial = new CANNON.Material("slipperyMaterial")
+        @cannonBox =  new CANNON.RigidBody(1,new CANNON.Box(new CANNON.Vec3(@minBox.x,@minBox.y,@minBox.z),physicsMaterial))
+        @cannonBox.position.set(@position.x,@position.y,@position.z)
+        @cannonBox.linearDamping = 0.9
 
     setControls : ->
     standardFire : ->

@@ -8,13 +8,13 @@ module.exports = class LockedControls
     maxNormalSpeed: 200.0
     maxBoosterSpeed: 300.0
     normalAccel: 10.0
-    boosterAccel: 20.0
+    boosterAccel: 100.0
     boostTimer: 0
     rollSpeed: 0.5
     barrelRollSpeed: 5.0
 
     mouseStatus: 0
-    autoForward: false
+    autoForward: true
     dragToLook : false
     fireStandard: false
     fireMissile: false
@@ -32,7 +32,7 @@ module.exports = class LockedControls
         down: 0
         left: 0
         right: 0
-        forward: 0
+        forward: 1
         backward: 0
         pitchUp: 0
         pitchDown: 0
@@ -67,15 +67,24 @@ module.exports = class LockedControls
 
         @enabled = false
         @cannonBody = ship.cannonBox
-        
+
         contactNormal = new CANNON.Vec3()
         upAxis = new CANNON.Vec3(0,1,0)
-        @cannonBody.addEventListener 'collide', (e) ->
+        @cannonBody.addEventListener 'collide', (e) =>
             contact = e.contact
+            console.log contact
+            @cannonBody.position.copy(@targetObject.position)
+            @cannonBody.quaternion.copy(@targetObject.quaternion)
+            @targetObject.position.add(new THREE.Vector3(contactNormal.x,contactNormal.y,contactNormal.z))
             if contact.bi.id is @cannonBody.id
                 contact.ni.negate contactNormal
             else
                 contact.ni.copy contactNormal
+            if contactNormal.dot(upAxis) < 0.5
+                @cannonBody.position.copy(@targetObject.position)
+                @cannonBody.quaternion.copy(@targetObject.quaternion)
+                @targetObject.position.add(new THREE.Vector3(contactNormal.x,contactNormal.y,contactNormal.z))
+
 
         document.addEventListener( 'mouseup', @onMouseUp, false )
         document.addEventListener( 'mousedown', @onMouseDown, false )
@@ -207,7 +216,7 @@ module.exports = class LockedControls
 
         # expose the rotation vector for convenience
         @targetObject.rotation.setEulerFromQuaternion( @targetObject.quaternion, @targetObject.eulerOrder )
-        @cannonBody.position.copy(@targetObject.position)
+        @cannonBody.position.set(@targetObject.position.x,@targetObject.position.y,@targetObject.position.z)
 
 
     updateMovementVector: () =>

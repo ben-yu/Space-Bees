@@ -1,11 +1,11 @@
 module.exports = class MapGenerator
     constructor: () ->
 
-    createMap:(scene,cannonWorld,buildingData) ->
+    createMap:(scene,cannonWorld,renderer,buildingData) ->
         scene.fog = new THREE.Fog( 0xffffff, 3000, 100000 )
         scene.fog.color.setHSL( 0.51, 0.6, 0.6 )
         @createSkyBox(scene)
-        @generateCityTerrain(scene,cannonWorld,buildingData)
+        @generateCityTerrain(scene,cannonWorld,renderer,buildingData)
 
     createSkyBox: (scene) ->
         skyshader = THREE.ShaderLib["cube"]
@@ -54,13 +54,13 @@ module.exports = class MapGenerator
         context.drawImage( canvas, 0, 0, canvas2.width, canvas2.height )
         return canvas2
 
-    generateCityTerrain: (scene,cannonWorld,buildingData)=>
+    generateCityTerrain: (scene, cannonWorld, renderer, buildingData) =>
 
         # generate building texture
         texture = new THREE.Texture(@generateTexture())
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping
         texture.repeat.set(5, 5)
-        #texture.anisotropy = @renderer.getMaxAnisotropy()
+        texture.anisotropy = renderer.getMaxAnisotropy()
 
         texture.needsUpdate = true
 
@@ -71,31 +71,32 @@ module.exports = class MapGenerator
         })
         
         light = new THREE.Color( 0xffffff )
-        shadow    = new THREE.Color( 0x303050 )
+        shadow    = new THREE.Color( 0x000000)
         
         buildings = new THREE.Object3D()
+        physicsMaterial = new CANNON.Material "slipperyMaterial"
         for i in buildingData
             # set .vertexColors for each face
             geometry = new THREE.CubeGeometry i.w,i.h,i.w
-            cannonBox =  new CANNON.RigidBody(1,new CANNON.Box(new CANNON.Vec3(i.w/2,i.h/2,i.w/2)))
+            cannonBox =  new CANNON.RigidBody(-1,new CANNON.Box(new CANNON.Vec3(i.w/2,i.h/2,i.w/2)))
             for j in [0..geometry.faces.length-1]
                 value    = 1 - Math.random() * Math.random()
                 baseColor   = new THREE.Color().setRGB( value + Math.random() * 0.1, value, value + Math.random() * 0.1 )
                 # set topColor/bottom vertexColors as adjustement of baseColor
                 topColor    = baseColor.clone().multiply( light )
                 bottomColor = baseColor.clone().multiply( shadow )
-                if j == 2
+                if j == 3
                     # set face.vertexColors on root face
-                    geometry.faces[ j ].vertexColors = [ baseColor, baseColor, baseColor, baseColor ]
+                    geometry.faces[ j ].vertexColors = [ shadow, shadow, shadow, shadow ]
                 else
                     # set face.vertexColors on sides faces
                     geometry.faces[ j ].vertexColors = [ topColor, bottomColor, bottomColor, topColor ]
             city = new THREE.Mesh(geometry, material)
-            city.position.set(i.x,0,i.z)
-            cannonBox.position.set(i.x,0,i.z)
-            #city.rotation.y = i.y
-            #city.rotation.x = Math.PI/2
+            city.useQuaternion  = true
+            cannonBox.position.set(i.x,250,i.z)
+            city.position.set(i.x,250,i.z)
             buildings.add(city)
+            #console.log cannonBox
             cannonWorld.add cannonBox
         scene.add buildings
 
@@ -116,10 +117,11 @@ module.exports = class MapGenerator
         floor.rotation.x = - Math.PI / 2
         floor.receiveShadow = true
 
-        physicsMaterial = new CANNON.Material "slipperyMaterial"
+
         groundShape = new CANNON.Plane()
         groundBody = new CANNON.RigidBody(0,groundShape,physicsMaterial)
         groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2)
+        groundBody.position.y = -250
         cannonWorld.add(groundBody)
 
         scene.add floor
