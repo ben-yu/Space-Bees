@@ -18,11 +18,11 @@ module.exports = class ShipModel extends Backbone.Model
         @shotsFired = 0
         @set "speed", @speed = 0
 
-        @particlesLength = 70000
-
+        @particlesLength = 100
         @mesh = null
 
         @loadModel()
+        #@createExhaust()
         return
 
     update : ->
@@ -30,12 +30,13 @@ module.exports = class ShipModel extends Backbone.Model
         geom = SpaceBees.Loader.get('geometries','ship')
         geom.computeBoundingBox()
         @minBox = geom.boundingBox.min.multiplyScalar(@scaleFactor)
-        @ship = new THREE.Mesh(geom, new THREE.MeshNormalMaterial())
-        @ship.scale.set(@scaleFactor,@scaleFactor,@scaleFactor)
-        @ship.position.copy(@position)
+        @mesh = new THREE.Mesh(geom, new THREE.MeshNormalMaterial())
+        @mesh.scale.set(@scaleFactor,@scaleFactor,@scaleFactor)
+        @mesh.position.set(@position.x,@position.y,@position.z)
 
-        @mesh = new THREE.Object3D()
-        @mesh.add @ship
+        @group = new THREE.Object3D()
+        @group.add @mesh
+        @group.position.copy(@position)
 
         # - CannonJS Model
         physicsMaterial = new CANNON.Material("slipperyMaterial")
@@ -43,8 +44,9 @@ module.exports = class ShipModel extends Backbone.Model
         @cannonBox.position.set(@position.x,@position.y,@position.z)
         @cannonBox.linearDamping = 0.9
 
+    createExhaust : =>
         # - Exhaust Particle System
-        attributes =
+        @attributes =
             size:  { type: 'f', value: [] }
             pcolor: { type: 'c', value: [] }
 
@@ -55,39 +57,35 @@ module.exports = class ShipModel extends Backbone.Model
         uniforms =
             texture: { type: "t", value: texture }
 
-        particles = new THREE.Geometry()
+        @particles = new THREE.Geometry()
         for i in [0..@particlesLength]
-            particles.vertices.push new THREE.Vector3(Math.random() * 200 - 100, Math.random() * 100 + 150, Math.random() * 50)
+            @particles.vertices.push new THREE.Vector3(new THREE.Vertex(Math.random() * 200 - 100, Math.random() * 100 + 150, Math.random() * 50))
             ParticlePool.add i
 
-        shaderMaterial = new THREE.ShaderMaterial
-            uniforms: uniforms,
-            attributes: attributes
-            #vertexShader: document.getElementById( 'vertexshader' ).textContent
-            #fragmentShader: document.getElementById( 'fragmentshader' ).textContent
-            blending: THREE.AdditiveBlending
-            depthWrite: false
-            transparent: true
+        shaderMaterial = pMaterial = new THREE.ParticleBasicMaterial({
+            color: 0xFFFFFF
+            size: 20
+        })
 
+        @particleCloud = new THREE.ParticleSystem( @particles, shaderMaterial )
+        @particleCloud.sortParticles = true
 
-        particleCloud = new THREE.ParticleSystem( particles, shaderMaterial )
-        particleCloud.dynamic = true
+        vertices = @particleCloud.geometry.vertices
+        #@values_size = @attributes.size.value
+        #@values_color = @attributes.pcolor.value
 
-        @mesh.add particleCloud
+        for i in [0..@particlesLength]
+            #@values_size[i] = 50
+            #@values_color[i] = new THREE.Color(0x000000)
+            @particles.vertices[i].set( Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY)
 
-        vertices = particleCloud.geometry.vertices
-        values_size = attributes.size.value
-        values_color = attributes.pcolor.value
+        @group.add @particleCloud
+        @particleCloud.position.set(@position.x,@position.y,@position.z)
 
-        for i in [0..vertices.length-1]
-            values_size[i] = 50
-            values_color[i] = new THREE.Color(0x000000)
-            particles.vertices[i].set( Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY)
+        #sparksEmitter = new SPARKS.Emitter( new SPARKS.SteadyCounter( 500 ) )
 
-        sparksEmitter = new SPARKS.Emitter( new SPARKS.SteadyCounter( 500 ) )
-
-        emitterpos = new THREE.Vector3( 0, 0, 0 )
-
+        #emitterpos = new THREE.Vector3( 0, 0, 0 )
+        ###
         sparksEmitter.addInitializer( new SPARKS.Position( new SPARKS.PointZone( emitterpos ) ) )
         sparksEmitter.addInitializer( new SPARKS.Lifetime( 1, 15 ))
         sparksEmitter.addInitializer( new SPARKS.Target( null, @setTargetParticle ) )
@@ -100,7 +98,7 @@ module.exports = class ShipModel extends Backbone.Model
         sparksEmitter.addCallback( "created", @onParticleCreated )
         sparksEmitter.addCallback( "dead", @onParticleDead )
         sparksEmitter.start()
-
+        ###
 
     generateExhaustSprite : ->
         canvas = document.createElement 'canvas'
@@ -110,13 +108,11 @@ module.exports = class ShipModel extends Backbone.Model
 
         context.beginPath()
         context.arc( 64, 64, 60, 0, Math.PI * 2, false)
-
         context.lineWidth = 0.5
         context.stroke()
         context.restore()
 
         gradient = context.createRadialGradient( canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2 )
-
         gradient.addColorStop( 0, 'rgba(255,255,255,1)' )
         gradient.addColorStop( 0.2, 'rgba(255,255,255,1)' )
         gradient.addColorStop( 0.4, 'rgba(200,200,200,1)' )
@@ -124,16 +120,26 @@ module.exports = class ShipModel extends Backbone.Model
 
         context.fillStyle = gradient
         context.fill()
-
         return canvas
 
-    onParticleCreated : (p) ->
+    onParticleCreated : (p) =>
+        #position = p.position
+        #p.target.position = position
 
-    onParticleDead : (p) ->
+        target = p.target
+        if target
+            @particles.vertices[target] = @position
+
+    onParticleDead : (p) =>
+        target = p.target
+        if target
+            #@values_color[target].setRGB 0,0,0
+            @particles.vertices[target].set Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY
+            ParticlePool.add p.target
 
     setTargetParticle : () ->
-        target = Pool.get()
-        values_size[ target ] = Math.random() * 200 + 100
+        target = ParticlePool.get()
+        #@values_size[ target ] = Math.random() * 200 + 100
         return target
 
     setControls : ->

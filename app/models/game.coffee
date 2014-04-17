@@ -96,6 +96,11 @@ module.exports = class Game extends Backbone.Model
 
         # Player's ship
         @ship = new Ship()
+        
+        @scene.add @camera
+        @scene.add @ship.mesh
+        @scene.add @ship.particleCloud
+
         SpaceBees.Views.HealthBar = new HealthbarView({model: @ship})
 
         @ship.bind 'change:speed', () =>
@@ -106,11 +111,10 @@ module.exports = class Game extends Backbone.Model
         @ship.position = @controls.targetObject.position
         @ship.rotationV = @controls.targetObject.rotation
 
+        @cannonWorld.add @controls.cannonBody
+
         @chasecamera = new ChaseCamera @camera, @ship.mesh
 
-        @scene.add @ship.mesh
-        @scene.add @camera
-        @cannonWorld.add @controls.cannonBody
 
         # Projectiles
         @bullets = new Bullets([],{parentScene:@scene, selfId:@session_id})
@@ -311,6 +315,10 @@ module.exports = class Game extends Backbone.Model
                     @lastFireMissile = +new Date()
                     @fire("missile")
             
+            #@ship.particleCloud.geometry.verticesNeedUpdate = true
+            #@ship.attributes.size.needsUpdate = true
+            #@ship.attributes.pcolor.needsUpdate = true
+
             @ship.save()
 
             @cannonWorld.step(delta)
