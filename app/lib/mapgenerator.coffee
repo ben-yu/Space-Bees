@@ -124,4 +124,34 @@ module.exports = class MapGenerator
         groundBody.position.y = -250
         cannonWorld.add(groundBody)
 
+        # Map Bounds
+        ceiling = new CANNON.Plane()
+        ceilingBody = new CANNON.RigidBody(0,groundShape,physicsMaterial)
+        ceilingBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2)
+        ceilingBody.position.y = 8000
+        cannonWorld.add ceilingBody
+
+        wall = new CANNON.Plane()
+        wallBody = new CANNON.RigidBody(0,groundShape,physicsMaterial)
+        wallBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2)
+        wallBody.position.x = 11000
+        cannonWorld.add wallBody
+
+        wall = new CANNON.Plane()
+        wallBody = new CANNON.RigidBody(0,groundShape,physicsMaterial)
+        wallBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2)
+        wallBody.position.x = -11000
+        cannonWorld.add wallBody
+        wall = new CANNON.Plane()
+        wallBody = new CANNON.RigidBody(0,groundShape,physicsMaterial)
+        wallBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2)
+        wallBody.position.z = 11000
+        cannonWorld.add wallBody
+        wall = new CANNON.Plane()
+        wallBody = new CANNON.RigidBody(0,groundShape,physicsMaterial)
+        wallBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2)
+        wallBody.position.z = -11000
+        cannonWorld.add wallBody
+
+
         scene.add floor

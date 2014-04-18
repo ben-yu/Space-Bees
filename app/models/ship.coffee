@@ -22,7 +22,7 @@ module.exports = class ShipModel extends Backbone.Model
         @mesh = null
 
         @loadModel()
-        #@createExhaust()
+        @createExhaust()
         return
 
     update : ->
@@ -46,21 +46,17 @@ module.exports = class ShipModel extends Backbone.Model
 
     createExhaust : =>
         # - Exhaust Particle System
-        @attributes =
-            size:  { type: 'f', value: [] }
-            pcolor: { type: 'c', value: [] }
-
-        sprite = @generateExhaustSprite()
-        texture = new THREE.Texture texture
-        texture.needsUpdate = true
-
-        uniforms =
-            texture: { type: "t", value: texture }
+        #sprite = @generateExhaustSprite()
+        #texture = new THREE.Texture sprite
+        #texture.needsUpdate = true
 
         @particles = new THREE.Geometry()
         for i in [0..@particlesLength]
-            @particles.vertices.push new THREE.Vector3(new THREE.Vertex(Math.random() * 200 - 100, Math.random() * 100 + 150, Math.random() * 50))
-            ParticlePool.add i
+            pX = Math.random() * @position.x - Math.random() * 20
+            pY = Math.random() * @position.x - Math.random() * 20
+            pZ = Math.random() * @position.x - Math.random() * 20
+            @particles.vertices.push new THREE.Vertex(new THREE.Vector3(pX, pY, pZ))
+            #ParticlePool.add i
 
         shaderMaterial = pMaterial = new THREE.ParticleBasicMaterial({
             color: 0xFFFFFF
@@ -68,9 +64,9 @@ module.exports = class ShipModel extends Backbone.Model
         })
 
         @particleCloud = new THREE.ParticleSystem( @particles, shaderMaterial )
+        @particleCloud.dynamic = true
         @particleCloud.sortParticles = true
 
-        vertices = @particleCloud.geometry.vertices
         #@values_size = @attributes.size.value
         #@values_color = @attributes.pcolor.value
 
@@ -83,10 +79,9 @@ module.exports = class ShipModel extends Backbone.Model
         @particleCloud.position.set(@position.x,@position.y,@position.z)
 
         #sparksEmitter = new SPARKS.Emitter( new SPARKS.SteadyCounter( 500 ) )
-
         #emitterpos = new THREE.Vector3( 0, 0, 0 )
         ###
-        sparksEmitter.addInitializer( new SPARKS.Position( new SPARKS.PointZone( emitterpos ) ) )
+        sparksEmitter.addInitializer( new SPARKS.Position( new SPARKS.PointZone( @position ) ) )
         sparksEmitter.addInitializer( new SPARKS.Lifetime( 1, 15 ))
         sparksEmitter.addInitializer( new SPARKS.Target( null, @setTargetParticle ) )
         sparksEmitter.addInitializer( new SPARKS.Velocity( new SPARKS.PointZone( new THREE.Vector3( 0, -5, 1 ) ) ) )
